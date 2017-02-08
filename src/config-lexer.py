@@ -21,7 +21,7 @@ t_TOKROOMSTART = r"room"
 
 t_TOKROOMEND = r"moor"
 
-t_TOKOCCUPANCY = r"occupancy"
+t_TOKOCCUPANCY = r"max-occupancy"
 
 t_TOKNICK = r"nickname"
 
@@ -66,16 +66,16 @@ with open("headcount.conf", "r") as f:
 
 # Store the rooms in an object
 class Room(object):
-    def __init__(self, name, occupancy, svg_id, nickname=""):
+    def __init__(self, name, max_occupancy, svg_id, nickname=""):
         self.name = name
-        self.occupancy = occupancy
+        self.max_occupancy = max_occupancy
         self.svg_id = svg_id
         self.nickname = nickname
 
     def __repr__(self):
-        return "Room( name=\"%s\", occupancy=%s, svg_id=\"%s\", nickname=\"%s\" )" % (
+        return "Room( name=\"%s\", max_occupancy=%s, svg_id=\"%s\", nickname=\"%s\" )" % (
             self.name,
-            self.occupancy,
+            self.max_occupancy,
             self.svg_id,
             self.nickname
         )
@@ -94,9 +94,9 @@ def p_room_set(p):
 def p_room(p):
     """room : TOKROOMSTART STRING config_group TOKROOMEND"""
     if "nickname" in p[3].keys():
-        p[0] = Room(p[2], p[3]["occupancy"], p[3]["svg-id"], nickname=p[3]["nickname"])
+        p[0] = Room(p[2], p[3]["max-occupancy"], p[3]["svg-id"], nickname=p[3]["nickname"])
     else:
-        p[0] = Room(p[2], p[3]["occupancy"], p[3]["svg-id"])
+        p[0] = Room(p[2], p[3]["max-occupancy"], p[3]["svg-id"])
 
 
 def p_config_group(p):
