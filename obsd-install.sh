@@ -28,3 +28,6 @@ chown -R _headcount:_headcount hc-venv
 # Install required python modules
 . hc-venv/bin/activate
 pip3 install -r requirements.txt
+
+# Copy uWSGI configs into place
+
