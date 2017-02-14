@@ -128,7 +128,7 @@ def p_error(p):
     raise SyntaxError("Shit's broke, son.")
 
 
-parser = yacc.yacc(debug=1)
-config = parser.parse(text, lexer=lexer)
-print(config)
+def read_configuration():
+    parser = yacc.yacc(debug=1)
+    return parser.parse(text, lexer=lexer)
 
