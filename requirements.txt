@@ -1,3 +1,5 @@
 flask
 uwsgi
 ply
+python3-saml
+sqlite3
