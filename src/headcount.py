@@ -109,22 +109,44 @@ def index():
 
 @app.route("/main")
 def show_main():
-    return "This is the main count entry screen"
+    status = ""
+    return render_template(
+        "main.html",
+        status=status
+    )
 
 
 @app.route("/admin")
 def show_admin():
-    return "This is the administration page"
+    users = []
+    admins = []
+    return render_template(
+        "admin.html",
+        users=users,
+        admins=admins
+    )
 
 
 @app.route("/admin/edit-admins")
 def show_admin_edit_admins():
-    return "This is the administration page, but in edit mode for administrators"
+    users = []
+    admins = []
+    return render_template(
+        "admin-ea.html",
+        users=users,
+        admins=admins
+    )
 
 
 @app.route("/admin/edit-users")
 def show_admin_edit_users():
-    return "This is the administration page, but in edit mode for users"
+    users = []
+    admins = []
+    return render_template(
+        "admin-eu.html",
+        users=users,
+        admins=admins
+    )
 
 
 def main():
