@@ -104,9 +104,10 @@ def p_config_group(p):
                     | config_group config_phrase"""
     # If there's already a config group there, add the new item to it
     if len(p) > 2:
-        # Take the first element of the tuple in p[2] (the token value) and use it as a new key in the dictionary in
-        # p[1]. Assign the value from the second element in the tuple in p[2] (the associated string/int) to that
-        # dictionary key
+        # Take the first element of the tuple in p[2] (the token value) and use
+        # it as a new key in the dictionary in p[1]. Assign the value from the
+        # second element in the tuple in p[2] (the associated string/int) to
+        # that dictionary key
         # Yes, I know this line is horribly opaque
         p[1][p[2][0]] = p[2][1]
         # Put p[1] into p[0], as required by Yacc
