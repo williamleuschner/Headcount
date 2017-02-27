@@ -37,15 +37,15 @@ def init_saml_auth(req):
     return auth
 
 
-def prepare_flask_request(request):
-    url_data = urlparse(request.url)
+def prepare_flask_request(req):
+    url_data = urlparse(req.url)
     return {
-        'https': "on" if request.scheme == 'https' else "off",
-        'http_host': request.host,
+        'https': "on" if req.scheme == 'https' else "off",
+        'http_host': req.host,
         'server_port': url_data.port,
-        'script_name': request.path,
-        'get_data': request.args.copy(),
-        'post_data': request.form.copy()
+        'script_name': req.path,
+        'get_data': req.args.copy(),
+        'post_data': req.form.copy()
     }
 
 
@@ -104,7 +104,7 @@ def index():
         if len(session['samlUserdata']) > 0:
             attributes = session['samlUserdata'].items()
 
-    return "Hello, world!"
+    return render_template("index.html")
 
 
 @app.route("/main")

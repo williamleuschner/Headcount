@@ -9,7 +9,7 @@ import sqlite3
 import datetime
 
 # Where's the file the DB is in?
-DB_FILE_NAME = "db/hc.db"
+DB_FILE_NAME = "../db/hc.db"
 
 
 class HCDB:
