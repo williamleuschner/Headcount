@@ -2,10 +2,11 @@ html, body {
     font-family: "San Francisco Display", "SF UI Display", Helvetica Neue, Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: #457fca; /* fallback for old browsers */
-    background: -webkit-linear-gradient(to bottom-left, #457fca , #5691c8); /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to bottom-left, #457fca , #5691c8); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: #24C6DC; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to top left, #24C6DC , #514A9D); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to top left, #24C6DC , #514A9D); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     color: white;
+    height: 100%;
 }
 
 nav {
@@ -74,16 +75,16 @@ main .buttons {
 
 .login:hover {
     background: white;
-    color: #457FCA;
+    color: #24C6DC;
     transition: background .2s, color .2s;
 }
 
 nav .login {
-    background-color: #457FCA;
-    border: 2px #457FCA solid;
+    background-color: #24C6DC;
+    border: 2px #24C6DC solid;
 }
 
 nav .login:hover {
     background-color: rgba(69, 127, 202, 0);
-    color: #457FCA;
+    color: #24C6DC;
 }
