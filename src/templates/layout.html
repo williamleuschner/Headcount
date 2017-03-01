@@ -6,12 +6,11 @@
     <link rel="stylesheet" href="{{url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="nav-container">
-        <div class="nav-bg hero-image"></div>
-        <nav>
-            {% block navbar %}{% endblock %}
-        </nav>
-    </div>
-    {% block content %}{% endblock %}
+    <nav>
+        {% block navbuttons %}{% endblock %}
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
 </body>
 </html>
