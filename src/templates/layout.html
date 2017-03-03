@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Headcount</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{url_for('static', filename='reset.css') }}">
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css') }}">
 </head>
 <body>
     <nav>
-        {% block navbuttons %}{% endblock %}
+        <h1>Headcount</h1>
+        <div class="buttons">
+            {% for button in buttons %}
+            <a href="{{ button.location }}">{{ button.name }}</a>
+            {% endfor %}
+        </div>
     </nav>
     <main>
         {% block content %}{% endblock %}

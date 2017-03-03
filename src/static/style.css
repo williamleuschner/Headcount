@@ -2,23 +2,47 @@ html, body {
     font-family: "San Francisco Display", "SF UI Display", Helvetica Neue, Arial, sans-serif;
     margin: 0;
     padding: 0;
+    height: 100%;
+}
+
+p, a {
+    font-family: "San Francisco Text", "SF UI Text", Helvetica Neue, Arial, sans-serif;
+}
+
+.hero-bg {
     background: #24C6DC; /* fallback for old browsers */
     background: -webkit-linear-gradient(to top left, #24C6DC , #514A9D); /* Chrome 10-25, Safari 5.1-6 */
     background: linear-gradient(to top left, #24C6DC , #514A9D); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     color: white;
-    height: 100%;
 }
 
 nav {
-    background-color: rgba(255,255,255, 0.67);
+    min-height: 42.4px;
     display: flex;
     justify-content: space-between;
     padding: 1rem 2rem;
-    margin-bottom: 13%;
     align-items: center;
 }
 
-main {
+nav:not(.hero-nav) {
+    background-color: #FFFFFF;
+    border-bottom-width: 1px;
+    border-bottom-color: #95989A;
+    border-bottom-style: solid;
+    margin-bottom: 2rem;
+}
+
+nav.hero-nav {
+    background-color: rgba(255,255,255, 0.67);
+    margin-bottom: 13%;
+}
+
+nav .buttons a {
+    font-weight: 600;
+    color: #24C6DC;
+}
+
+main.flexy {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -35,18 +59,26 @@ a {
     text-decoration: none;
 }
 
-main h2 {
+.hero-bg main h2 {
     font-size: 2.5rem;
     margin: 1rem 3rem calc(10% + 2rem) 3rem;
     font-weight: bold;
     text-align: center;
 }
 
-main h3 {
+.hero-bg main h3 {
     font-size: 1.5rem;
     margin: 1rem 3rem calc(10% + 2rem) 3rem;
     font-weight: 500;
     text-align: center;
+}
+
+main h2 {
+    font-size: 1.5rem;
+    margin: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
+    font-weight: 600;
 }
 
 main .buttons {
@@ -87,4 +119,37 @@ nav .login {
 nav .login:hover {
     background-color: rgba(69, 127, 202, 0);
     color: #24C6DC;
+}
+
+form {
+    width: 40%;
+}
+form input[type="submit"] {
+    background-color: #24C6DC;
+    padding: .7rem 1.5rem;
+    color: white;
+    font-weight: bold;
+    margin: 0 auto;
+    border-radius: 5px;
+    border: none;
+}
+
+div.col-2 {
+    width: 49%;
+    display: inline-block;
+}
+
+div.col-3 {
+    width: 33%;
+    display: inline-block;
+}
+
+div.col-23 {
+    width: 66%;
+    display: inline-block;
+    }
+
+div.col-4 {
+    width: 25%;
+    display: inline-block;
 }

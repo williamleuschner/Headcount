@@ -8,7 +8,7 @@
 import os
 
 from flask import Flask, request, render_template, redirect, session, \
-    make_response
+    make_response, url_for
 
 from urllib.parse import urlparse
 
@@ -17,6 +17,8 @@ from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
 import config_lexer
 import hc_db
+
+from collections import namedtuple
 
 app = Flask(__name__)
 
@@ -30,6 +32,8 @@ app.config['DATABASE'] = hc_db.HCDB()
 #   I think it's obvious why.   #
 #################################
 app.config['DISABLE_AUTH'] = True
+
+NavButton = namedtuple("NavButton", "location name")
 
 
 def init_saml_auth(req):
@@ -112,7 +116,12 @@ def show_main():
     status = ""
     return render_template(
         "main.html",
-        status=status
+        status=status,
+        buttons=[
+            NavButton(url_for("logout"), "Log Out"),
+            NavButton(url_for("show_admin"), "Administration"),
+            NavButton(url_for("help"), "Help")
+        ]
     )
 
 
@@ -147,6 +156,16 @@ def show_admin_edit_users():
         users=users,
         admins=admins
     )
+
+
+@app.route("/logout")
+def logout():
+    return "This is broken."
+
+
+@app.route("/help")
+def help():
+    return "This is broken."
 
 
 def main():

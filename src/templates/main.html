@@ -1,5 +1,42 @@
 {% extends "layout.html" %}
-{% block navbuttons %}
-{% endblock %}
 {% block content %}
+<h2>Recent Headcounts</h2>
+<table>
+    <tbody>
+    <tr>
+        <th>Date</th>
+        {% for room in room_names %}
+        <th>{{ room }}</th>
+        {% endfor %}
+    </tr>
+    {% for count in recent_counts %}
+    <tr>
+        <td>{{ count["date"] }}</td>
+        {% for num in count["counts"] %}
+        <td>{{ num }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2>New Headcount</h2>
+<div class="new-count-container">
+    <div class="diagram-container">
+        <svg id="diagram"></svg>
+        <svg id="overlay"></svg>
+    </div>
+    <form>
+        <div class="col-3">
+            <p>When:</p>
+            {% for room in room_names %}
+            <p>{{ room }}</p>
+            {% endfor %}
+        </div>
+        <div class="col-23">
+            <input type="datetime" name="time">
+        </div>
+        <input type="submit" name="submit" value="Submit">
+    </form>
+</div>
 {% endblock %}
