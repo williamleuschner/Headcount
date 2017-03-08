@@ -121,18 +121,31 @@ def show_main():
             NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_admin"), "Administration"),
             NavButton(url_for("help"), "Help")
+        ],
+        room_names=["Co-Lab", "1650", "1651", "1652", "1653", "1654"],
+        recent_counts=[
+            {"date": "11:45", "counts": [1, 2, 3, 4, 5, 6]},
+            {"date": "11:15", "counts": [1, 2, 3, 4, 5, 6]},
+            {"date": "10:45", "counts": [1, 2, 3, 4, 5, 6]},
         ]
     )
 
 
 @app.route("/admin")
 def show_admin():
-    users = []
-    admins = []
+    users = ['wel2138', 'qxs7953', 'wso6175'] * 10
+    admins = ['kmm000'] * 3
     return render_template(
         "admin.html",
         users=users,
-        admins=admins
+        admins=admins,
+        logs="",
+        buttons=[
+            NavButton(url_for("logout"), "Log Out"),
+            NavButton(url_for("show_main"), "Main"),
+            NavButton(url_for("help"), "Help")
+        ],
+
     )
 
 

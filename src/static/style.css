@@ -121,9 +121,32 @@ nav .login:hover {
     color: #24C6DC;
 }
 
-form {
-    width: 40%;
+.recent-table {
+    width: 98%;
+    margin: 0 auto;
 }
+
+.recent-table th {
+    border-bottom: 1px solid #95989A;
+}
+
+td, th {
+    padding: .8rem .3rem;
+}
+
+td.numeric-data {
+    text-align: right;
+    padding-right: .8rem;
+}
+
+td:not(:last-child) {
+    border-right: 1px solid #95989A;
+}
+
+th:not(:last-child) {
+    border-right: 1px solid #95989A;
+}
+
 form input[type="submit"] {
     background-color: #24C6DC;
     padding: .7rem 1.5rem;
@@ -132,6 +155,23 @@ form input[type="submit"] {
     margin: 0 auto;
     border-radius: 5px;
     border: none;
+}
+
+.new-count-container {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-around;
+    align-items: flex-start;
+    width: 98%;
+    margin: 0 auto;
+}
+
+.new-count {
+    max-width: 350px;
+}
+
+form input {
+    font-family: "San Francisco Text", "SF UI Text", "Helvetica Neue", Arial, sans-serif;
 }
 
 div.col-2 {
@@ -152,4 +192,93 @@ div.col-23 {
 div.col-4 {
     width: 25%;
     display: inline-block;
+}
+
+.flex-inputs {
+    display: flex;
+    align-items: center;
+}
+
+.flex-inputs div p {
+    padding: 9px 0px;
+}
+
+.flex-inputs div input {
+    width: calc(100% - 15px);
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.new-count {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+input[name="1650"]:active, .1650 {
+    border: 7px solid #F00;
+    stroke: #F00;
+}
+
+.stack-container {
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+.stack-element {
+    position: absolute;
+    top:0;
+    left:0;
+}
+
+#rooms {
+    width: 100%;
+    height: 100%;
+}
+
+#rooms-named {
+    width: 100%;
+    height: 100%;
+}
+
+#rooms-named path {
+    stroke: #F00;
+}
+
+.shadow-button {
+
+}
+
+.username-group-group {
+    display: inline-block;
+    width: auto;
+    background-color: #95989A;
+}
+.username-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    align-content: flex-start;
+    width: auto;
+    padding: 0.6rem;
+}
+
+.username {
+    border: 1px solid #95989A;
+    height: 2rem;
+    width: 5.5rem;
+    display: flex;
+    justify-content: center;
+    background-color: #FFF;
+}
+
+
+.username span {
+    margin: 0 auto;
+    width: auto;
+    text-align: center;
+    line-height: 2rem;
 }

@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <h2>Recent Headcounts</h2>
-<table>
+<table class="recent-table">
     <tbody>
     <tr>
         <th>Date</th>
@@ -13,7 +13,7 @@
     <tr>
         <td>{{ count["date"] }}</td>
         {% for num in count["counts"] %}
-        <td>{{ num }}</td>
+        <td class="numeric-data">{{ num }}</td>
         {% endfor %}
     </tr>
     {% endfor %}
@@ -22,11 +22,12 @@
 
 <h2>New Headcount</h2>
 <div class="new-count-container">
-    <div class="diagram-container">
-        <svg id="diagram"></svg>
-        <svg id="overlay"></svg>
+    <div class="diagram-container stack-container">
+        {% include 'rooms.svg' %}
+        {% include 'rooms-named.svg' %}
     </div>
-    <form>
+    <form class="new-count">
+        <div class="flex-inputs">
         <div class="col-3">
             <p>When:</p>
             {% for room in room_names %}
@@ -35,6 +36,10 @@
         </div>
         <div class="col-23">
             <input type="datetime" name="time">
+            {% for room in room_names %}
+            <input type="number" name="{{ room }}">
+            {% endfor %}
+        </div>
         </div>
         <input type="submit" name="submit" value="Submit">
     </form>

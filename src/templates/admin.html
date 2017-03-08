@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="header-group">
+    <h2>Logs</h2>
+    <select>
+        <option value="0.5">30 minutes</option>
+        <option value="1">1 hour</option>
+        <option value="2">2 hours</option>
+        <option value="5">5 hours</option>
+    </select>
+</div>
+<textarea readonly="true">{{ logs }}</textarea>
+<div class="header-group">
+    <h2>Allowed Administrators</h2>
+    <a href="{{ url_for('show_admin_edit_admins') }}" class="shadow-button">Edit</a>
+</div>
+<div class="username-group-group">
+    <div class="username-group">
+        {% for admin in admins %}
+        <div class="username"><span>{{ admin }}</span></div>
+        {% endfor %}
+    </div>
+</div>
+<div class="header-group">
+    <h2>Allowed Users</h2>
+    <a href="{{ url_for('show_admin_edit_users') }}" class="shadow-button">Edit</a>
+</div>
+<div class="username-group-group">
+    <div class="username-group">
+        {% for user in users %}
+        <div class="username"><span>{{ user }}</span></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
