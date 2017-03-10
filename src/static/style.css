@@ -42,6 +42,10 @@ nav .buttons a {
     color: #24C6DC;
 }
 
+main:not(.flexy) {
+    margin-bottom: 2rem;
+}
+
 main.flexy {
     display: flex;
     flex-direction: column;
@@ -155,6 +159,7 @@ form input[type="submit"] {
     margin: 0 auto;
     border-radius: 5px;
     border: none;
+    margin-top: 2rem;
 }
 
 .new-count-container {
@@ -215,11 +220,6 @@ div.col-4 {
     justify-content: center;
 }
 
-input[name="1650"]:active, .1650 {
-    border: 7px solid #F00;
-    stroke: #F00;
-}
-
 .diagram-container {
     width: 100%;
     height: 100%;
@@ -256,8 +256,20 @@ input[name="1650"]:active, .1650 {
     transition-duration: 1s;
 }
 
-.shadow-button {
+.header-group {
+    width: 33%;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
 
+.header-group h2, .header-group a {
+    display: inline-block;
+}
+
+.header-group a {
+    color: #24C6DC;
+    font-weight: bold;
 }
 
 .username-group-group {
@@ -284,6 +296,7 @@ input[name="1650"]:active, .1650 {
     display: flex;
     justify-content: center;
     background-color: #FFF;
+    padding: 0 2px;
 }
 
 
@@ -292,4 +305,45 @@ input[name="1650"]:active, .1650 {
     width: auto;
     text-align: center;
     line-height: 2rem;
+}
+
+input[type="checkbox"] {
+    margin: auto 0;
+}
+
+.button-group {
+    margin: 1rem;
+}
+button.red {
+    background-color: #FF000F;
+    color: #FFF;
+    border: 2px solid #AF000A;
+    border-radius: 4px;
+    padding: 0;
+}
+
+button object {
+    width: 15px;
+    height: 15px;
+}
+
+button.green {
+    background-color: #00B950;
+    color: #FFF;
+    border: 2px solid #008439;
+}
+
+input[type="text"].lozenge {
+    border: 1px solid #95989A;
+    height: 1.3em;
+    margin: 0;
+}
+
+.lozenge.right {
+    border-radius:  0 4px 4px 0 ;
+}
+
+.lozenge.left {
+    border-radius: 4px 0 0 4px;
+    border-right: none;
 }

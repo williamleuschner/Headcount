@@ -151,23 +151,35 @@ def show_admin():
 
 @app.route("/admin/edit-admins")
 def show_admin_edit_admins():
-    users = []
-    admins = []
+    users = ['wel2138', 'qxs7953', 'wso6175'] * 10
+    admins = ['kmm000'] * 3
     return render_template(
         "admin-ea.html",
         users=users,
-        admins=admins
+        admins=admins,
+        logs="",
+        buttons=[
+            NavButton(url_for("logout"), "Log Out"),
+            NavButton(url_for("show_main"), "Main"),
+            NavButton(url_for("help"), "Help")
+        ],
     )
 
 
 @app.route("/admin/edit-users")
 def show_admin_edit_users():
-    users = []
-    admins = []
+    users = ['wel2138', 'qxs7953', 'wso6175'] * 10
+    admins = ['kmm000'] * 3
     return render_template(
         "admin-eu.html",
         users=users,
-        admins=admins
+        admins=admins,
+        logs="",
+        buttons=[
+            NavButton(url_for("logout"), "Log Out"),
+            NavButton(url_for("show_main"), "Main"),
+            NavButton(url_for("help"), "Help")
+        ],
     )
 
 

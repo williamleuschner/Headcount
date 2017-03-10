@@ -10,17 +10,31 @@
     </select>
 </div>
 <textarea readonly="true">{{ logs }}</textarea>
+<form>
 <div class="header-group">
     <h2>Allowed Administrators</h2>
-    <a href="{{ url_for('show_admin_edit_admins') }}" class="shadow-button">Edit</a>
+    <a href="{{ url_for('show_admin') }}">Done</a>
 </div>
 <div class="username-group-group">
     <div class="username-group">
         {% for admin in admins %}
-        <div class="username"><span>{{ admin }}</span></div>
+        <div class="username">
+            <input type="checkbox" name="{{ admin }}">
+            <span>{{ admin }}</span>
+        </div>
         {% endfor %}
     </div>
 </div>
+<div class="button-group">
+    <button class="red" name="delete">
+        <object type="image/svg"  data="{{ url_for('static', filename='trash.svg') }}">
+            Delete
+        </object>
+    </button>
+    <input type="text" name="new_admins" placeholder="Add" class="lozenge left">
+    <button class="green lozenge right" name="add"> + </button>
+</div>
+</form>
 <div class="header-group">
     <h2>Allowed Users</h2>
     <a href="{{ url_for('show_admin_edit_users') }}">Edit</a>
