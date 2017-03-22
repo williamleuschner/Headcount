@@ -42,30 +42,13 @@
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:zoom="9.63"
-     inkscape:cx="33.956386"
-     inkscape:cy="50"
+     inkscape:zoom="8"
+     inkscape:cx="30.522226"
+     inkscape:cy="43.160762"
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g3396">
-    <sodipodi:guide
-       position="10.384216,20.353063"
-       orientation="0,1"
-       id="guide4221" />
-    <sodipodi:guide
-       position="55.036345,59.086189"
-       orientation="0,1"
-       id="guide4223" />
-    <sodipodi:guide
-       position="61.889927,62.720665"
-       orientation="1,0"
-       id="guide4225" />
-    <sodipodi:guide
-       position="37.383178,70.093458"
-       orientation="1,0"
-       id="guide4227" />
-  </sodipodi:namedview>
+     inkscape:current-layer="g3396" />
   <title
      id="title3392">mountains-2 copy</title>
   <desc
@@ -80,7 +63,7 @@
     <path
        d="m 56.679089,79.735067 6.784527,0 0.103842,-38.67075 -6.992211,-0.103842 z m -20.621384,-0.103843 6.784527,0 0,-38.67075 -6.784527,0 z m 49.089203,-58.984527 0,4.469485 -71.25075,0 L 14,20.33517 c 0.06796,-3.129012 1.300894,-4.638328 4.430644,-4.638328 l 18.834014,0 0,-2.841657 c 0,-3.1297498 2.547,-5.6744998 5.67675,-5.6744998 l 13.1625,0 c 3.12975,0 5.67675,2.54475 5.67675,5.6744998 l 0,2.737815 2.821645,0 15.077789,0 c 3.12975,0 5.466816,1.923947 5.466816,5.053697 z M 74.600577,32.488934 82.112,32.28125 l 0,54.1665 C 82.112,91.16375 78.27575,95 73.55975,95 l -47.8665,0 c -4.71375,0 -8.55,-3.83625 -8.55,-8.55225 l 0,-54.1665 7.615265,-0.103842 0.103842,53.024236 c 0,2.23425 1.298789,3.221513 3.530789,3.221513 l 43.297445,0 c 2.23425,0 3.126405,-0.571911 3.117671,-2.806144 z"
        id="path3398"
-       style="fill:#000000;fill-opacity:0;stroke:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccccccccccsscssssccscsccssssccssss" />
   </g>
