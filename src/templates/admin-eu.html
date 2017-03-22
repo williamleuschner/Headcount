@@ -37,11 +37,16 @@
     </div>
 </div>
 <div class="button-group">
+    <!-- There are newlines in weird places here because some browsers render
+    whitespace-only text nodes in between the objects and screw up the spacing on
+    the form controls -->
     <button class="red" name="delete">
-        <img src="{{ url_for('static', filename='trash.svg') }}" alt="Delete">
+        <object type="image/svg" data="{{ url_for('static', filename='trash.svg') }}">
+            Delete
+        </object>
     </button>
-    <input type="text" name="new_admins" placeholder="Add" class="lozenge left">
-    <button class="green lozenge right" name="add"> + </button>
+    <input type="text" name="new_admins" placeholder="Add" class="lozenge left"
+    ><button class="green lozenge right" name="add"> + </button>
 </div>
 </form>
 {% endblock %}
