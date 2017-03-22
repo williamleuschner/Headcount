@@ -320,11 +320,13 @@ button.red {
     border: 2px solid #AF000A;
     border-radius: 4px;
     padding: 0;
+    height: 24px;
+    width: 24px;
 }
 
 button object {
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
 }
 
 button.green {
@@ -335,8 +337,10 @@ button.green {
 
 input[type="text"].lozenge {
     border: 1px solid #95989A;
+    border-right-width: 0;
     height: 1.3em;
     margin: 0;
+    margin-left: 1rem;
 }
 
 .lozenge.right {
