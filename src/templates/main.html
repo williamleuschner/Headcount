@@ -2,13 +2,16 @@
 {% block content %}
 <h2>Recent Headcounts</h2>
 <table class="recent-table">
-    <tbody>
     <tr>
         <th>Date</th>
-        {% for room in room_names %}
-        <th>{{ room }}</th>
+        {% for room in rooms %}
+        <th>{{ room.display_name() }}</th>
         {% endfor %}
     </tr>
+    <tbody>
+    <!-- This gets really ugly for tables with large numbers of columns.
+    TODO: Rewrite so that the times stay in place, but the rest of the table can
+          scroll horizontally (x-overflow: scroll) -->
     {% for count in recent_counts %}
     <tr>
         <td>{{ count["date"] }}</td>
@@ -28,18 +31,20 @@
     </div>
     <form class="new-count">
         <div class="flex-inputs">
-        <div class="col-3">
-            <p>When:</p>
-            {% for room in room_names %}
-            <p>{{ room }}</p>
+            <div class="input-group">
+                <span>Date:</span>
+                <input type="date" name="date" value="{{ datewhen }}">
+            </div>
+            <div class="input-group">
+                <span>Time:</span>
+                <input type="time" name="time" value="{{ timewhen }}">
+            </div>
+            {% for room in rooms %}
+            <div class="input-group">
+                <span>{{ room.display_name() }}:</span>
+                <input type="number" name="{{ room.name }}">
+            </div>
             {% endfor %}
-        </div>
-        <div class="col-23">
-            <input type="datetime" name="time">
-            {% for room in room_names %}
-            <input type="number" name="{{ room }}">
-            {% endfor %}
-        </div>
         </div>
         <input type="submit" name="submit" value="Submit">
     </form>

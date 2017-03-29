@@ -11,9 +11,20 @@
 </div>
 <textarea readonly="true">{{ logs }}</textarea>
 <form>
+    <a name="admins"></a>
 <div class="header-group">
     <h2>Allowed Administrators</h2>
-    <a href="{{ url_for('show_admin') }}">Done</a>
+    <a href="{{ url_for('show_admin') }}#admins">Done</a>
+</div>
+<div class="button-group">
+    <!-- There are newlines in weird places here because some browsers render
+    whitespace-only text nodes in between the objects and screw up the spacing on
+    the form controls -->
+    <button class="red" name="delete">
+        <span class="icon trash"></span>
+    </button>
+    <input type="text" name="new_admins" placeholder="Add" class="lozenge left"
+    ><button class="green lozenge right" name="add"><span class="icon plus"></span></button>
 </div>
 <div class="username-group-group">
     <div class="username-group">
@@ -25,28 +36,17 @@
         {% endfor %}
     </div>
 </div>
-<div class="button-group">
-    <!-- There are newlines in weird places here because some browsers render
-    whitespace-only text nodes in between the objects and screw up the spacing on
-    the form controls -->
-    <button class="red" name="delete">
-        <object type="image/svg"  data="{{ url_for('static', filename='trash.svg') }}">
-            Delete
-        </object>
-    </button>
-    <input type="text" name="new_admins" placeholder="Add" class="lozenge left"
-    ><button class="green lozenge right" name="add"> + </button>
-</div>
 </form>
+<a name="users"></a>
 <div class="header-group">
     <h2>Allowed Users</h2>
-    <a href="{{ url_for('show_admin_edit_users') }}">Edit</a>
+    <a href="{{ url_for('show_admin_edit_users') }}#users">Edit</a>
 </div>
 <div class="username-group-group">
-    <div class="username-group">
-        {% for user in users %}
-        <div class="username"><span>{{ user }}</span></div>
-        {% endfor %}
-    </div>
+<div class="username-group">
+    {% for user in users %}
+    <div class="username"><span>{{ user }}</span></div>
+    {% endfor %}
+</div>
 </div>
 {% endblock %}

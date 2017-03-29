@@ -10,43 +10,43 @@
     </select>
 </div>
 <textarea readonly="true">{{ logs }}</textarea>
+<a name="admins"></a>
 <div class="header-group">
     <h2>Allowed Administrators</h2>
-    <a href="{{ url_for('show_admin_edit_admins') }}">Edit</a>
+    <a href="{{ url_for('show_admin_edit_admins') }}#admins">Edit</a>
 </div>
 <div class="username-group-group">
-    <div class="username-group">
-        {% for admin in admins %}
-        <div class="username"> <span>{{ admin }}</span> </div>
-        {% endfor %}
-    </div>
+<div class="username-group">
+    {% for admin in admins %}
+    <div class="username"> <span>{{ admin }}</span> </div>
+    {% endfor %}
+</div>
 </div>
 <form>
+<a name="users"></a>
 <div class="header-group">
     <h2>Allowed Users</h2>
-    <a href="{{ url_for('show_admin') }}">Done</a>
-</div>
-<div class="username-group-group">
-    <div class="username-group">
-        {% for user in users %}
-        <div class="username">
-            <input type="checkbox" name="{{ user }}">
-            <span>{{ user }}</span>
-        </div>
-        {% endfor %}
-    </div>
+    <a href="{{ url_for('show_admin') }}#users">Done</a>
 </div>
 <div class="button-group">
     <!-- There are newlines in weird places here because some browsers render
     whitespace-only text nodes in between the objects and screw up the spacing on
     the form controls -->
     <button class="red" name="delete">
-        <object type="image/svg" data="{{ url_for('static', filename='trash.svg') }}">
-            Delete
-        </object>
+        <span class="icon trash"></span>
     </button>
     <input type="text" name="new_admins" placeholder="Add" class="lozenge left"
-    ><button class="green lozenge right" name="add"> + </button>
+    ><button class="green lozenge right" name="add"><span class="icon plus"></span></button>
+</div>
+<div class="username-group-group">
+<div class="username-group">
+    {% for user in users %}
+    <div class="username">
+        <input type="checkbox" name="{{ user }}">
+        <span>{{ user }}</span>
+    </div>
+    {% endfor %}
+</div>
 </div>
 </form>
 {% endblock %}

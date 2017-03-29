@@ -30,7 +30,8 @@ t_TOKSVGID = r"svg-id"
 t_ignore_WHITESPACE = r"[\n \t]+"
 
 
-# Comments are a pound sign, followed by any number of characters up to the end of the line
+# Comments are a pound sign, followed by any number of characters up to the end
+# of the line
 def t_COMMENT(t):
     r"""\#.*"""
     pass
@@ -79,6 +80,12 @@ class Room(object):
             self.svg_id,
             self.nickname
         )
+
+    def display_name(self):
+        if self.nickname != "":
+            return self.nickname
+        else:
+            return self.name
 
 
 def p_room_set(p):
