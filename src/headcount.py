@@ -208,12 +208,15 @@ def show_main():
 
 @app.route("/admin")
 def show_admin():
-    users = ['wel2138', 'qxs7953', 'wso6175'] * 10
-    admins = ['kmm000'] * 3
+    db = get_db()
+    users = db.get_all_users(False)
+    usernames = [u['username'] for u in users]
+    admins = db.get_all_users(True)
+    adminnames = [a['username'] for a in admins]
     return render_template(
         "admin.html",
-        users=users,
-        admins=admins,
+        users=usernames,
+        admins=adminnames,
         logs="",
         buttons=[
             NavButton(url_for("logout"), "Log Out"),
@@ -225,12 +228,15 @@ def show_admin():
 
 @app.route("/admin/edit-admins")
 def show_admin_edit_admins():
-    users = ['wel2138', 'qxs7953', 'wso6175'] * 10
-    admins = ['kmm000'] * 3
+    db = get_db()
+    users = db.get_all_users(False)
+    usernames = [u['username'] for u in users]
+    admins = db.get_all_users(True)
+    adminnames = [a['username'] for a in admins]
     return render_template(
         "admin-ea.html",
-        users=users,
-        admins=admins,
+        users=usernames,
+        admins=adminnames,
         logs="",
         buttons=[
             NavButton(url_for("logout"), "Log Out"),
@@ -242,12 +248,15 @@ def show_admin_edit_admins():
 
 @app.route("/admin/edit-users")
 def show_admin_edit_users():
-    users = ['wel2138', 'qxs7953', 'wso6175'] * 10
-    admins = ['kmm000'] * 3
+    db = get_db()
+    users = db.get_all_users(False)
+    usernames = [u['username'] for u in users]
+    admins = db.get_all_users(True)
+    adminnames = [a['username'] for a in admins]
     return render_template(
         "admin-eu.html",
-        users=users,
-        admins=admins,
+        users=usernames,
+        admins=adminnames,
         logs="",
         buttons=[
             NavButton(url_for("logout"), "Log Out"),
