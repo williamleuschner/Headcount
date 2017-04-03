@@ -67,6 +67,10 @@ with open("headcount.conf", "r") as f:
 
 # Store the rooms in an object
 class Room(object):
+    @staticmethod
+    def sortkey(to_sort):
+        return to_sort.name
+
     def __init__(self, name, max_occupancy, svg_id, nickname=""):
         self.name = name
         self.max_occupancy = max_occupancy
