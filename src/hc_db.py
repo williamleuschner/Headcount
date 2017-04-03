@@ -28,6 +28,8 @@ class HCDB:
     ADD_USER_Q = "INSERT INTO users (username, is_admin) VALUES (?,?)"
     # Get all of a user's data
     GET_USER_Q = "SELECT id, username, is_admin FROM users WHERE username=?"
+    # Select users where is_admin is true or false
+    GET_USER_BY_ADMIN_Q = "SELECT id, username FROM users WHERE is_admin=?"
     # Delete a user by ID
     DEL_USER_Q = "DELETE FROM users WHERE id=?"
     # Get the most recent ? headcounts
@@ -111,6 +113,20 @@ class HCDB:
         """Return the user, if one exists with the provided username"""
         return self._executeone(HCDB.GET_USER_Q, (username,))
 
+    def get_all_users(self, filter_by_admin=None):
+        """Get all of the users from the database, optionally filtering by
+        admin status.
+        :param filter_by_admin Set to True to only fetch admins, set to False to
+                               only fetch non-admins, and set to None to get
+                               every user"""
+        if filter_by_admin is None:
+            # TODO: This doesn't work
+            return self._execute(HCDB.GET_USER_Q, "*")
+        elif filter_by_admin is True:
+            return self._execute(HCDB.GET_USER_BY_ADMIN_Q, 1)
+        elif filter_by_admin is False:
+            return self._execute(HCDB.GET_USER_BY_ADMIN_Q, 0)
+
     def get_newest_counts(self, how_many: int, sort: NewestSort):
         """Get n of the most recent headcounts
         :param how_many How many counts should be gotten?
@@ -123,7 +139,7 @@ class HCDB:
     def get_roomdata_for_count_id(self, count_id: int):
         """Get the per-room headcounts for a given count ID
         :param count_id The associated headcount ID to get data for"""
-        return self._execute(HCDB.ROOMDATA_Q, count_id)
+        return self._execute(HCDB.ROOMDATA_Q, (count_id,))
 
     def close(self):
         """Closes the database connection"""

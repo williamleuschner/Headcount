@@ -19,7 +19,7 @@ import config_lexer
 import hc_db
 import datetime
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 
 app = Flask(__name__)
 
@@ -158,32 +158,30 @@ def show_main():
     # If there is no submit argument, just render the page
     if request.args.get("submit", "") == "":
         db = get_db()
-        status = ""
         now = datetime.datetime.now()
         rooms = [room for room in app.config["HC_CONFIG"]]
-        newest_counts = db.get_newest_counts(3, hc_db.NewestSort.ENTERED_TIME)
+        rooms.sort(key=config_lexer.Room.sortkey)
+        # Get the three newest counts from the database, sorted by the
+        # user-provided time
+        newest_counts = db.get_newest_counts(3, hc_db.NewestSort.ENTERED_TIME).fetchall()
         recent_counts = []
         for count in newest_counts:
-            room_rows =
-        recent_counts = [
-            {"date": date['entered_time'], "counts": []}
-            for date in newest_counts
-        ]
-        print(repr(recent_counts))
+            room_rows = db.get_roomdata_for_count_id(count['id'])
+            # I couldn't think of a short, descriptive name for this variable.
+            some_dict = {"date": count['entered_time'], "counts": {}}
+            for row in room_rows:
+                some_dict["counts"][row['room']] = row['people_count']
+            some_dict['counts'] = OrderedDict(sorted(some_dict['counts'].items()))
+            recent_counts.append(some_dict)
         return render_template(
             "main.html",
-            status=status,
             buttons=[
                 NavButton(url_for("logout"), "Log Out"),
                 NavButton(url_for("show_admin"), "Administration"),
                 NavButton(url_for("help"), "Help")
             ],
             rooms=rooms,
-            recent_counts=[
-                {"date": "11:45", "counts": [1, 2, 3, 4, 5, 6]},
-                {"date": "11:15", "counts": [1, 2, 3, 4, 5, 6]},
-                {"date": "10:45", "counts": [1, 2, 3, 4, 5, 6]},
-            ],
+            recent_counts=recent_counts,
             datewhen=now.strftime("%Y-%m-%d"),
             timewhen=now.strftime("%H:%M:%S")
         )
