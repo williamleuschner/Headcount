@@ -18,6 +18,7 @@ from onelogin.saml2.utils import OneLogin_Saml2_Utils
 import config_lexer
 import hc_db
 import datetime
+import re
 
 from collections import namedtuple, OrderedDict
 
@@ -39,6 +40,8 @@ app.config['DATABASE'] = "../db/hc.db"
 app.config['DISABLE_AUTH'] = True
 
 NavButton = namedtuple("NavButton", "location name")
+
+USERNAME_REGEX = re.compile(r"^[a-z]{3}([a-z]{3}|[0-9]{4})$")
 
 
 def connect_db():
@@ -67,6 +70,13 @@ def initdb_command():
     db = get_db()
     with app.open_resource('../db/hc.schema', mode='r') as f:
         db.initialize(f)
+
+
+def validate_username(test_string: str) -> bool:
+    """Test to make sure the username provided could be a valid RIT username
+    :return True if the username is OK, False if it isn't"""
+    return USERNAME_REGEX.match(test_string) is not None
+
 
 
 def init_saml_auth(req):
@@ -189,6 +199,7 @@ def show_main():
         # Otherwise, add a new headcount and then redirect to the same page, but
         # without arguments
         db = get_db()
+        # TODO: Data validation might be important, maybe.
         provided_time = datetime.datetime.strptime(
             # This doesn't use .get() on purpose. Things should break if there
             # is no data here
@@ -196,25 +207,26 @@ def show_main():
             "%Y-%m-%dT%H:%M:%S"
         )
         current_time = datetime.datetime.now()
+        # Copy the request arguments
         counts = dict(request.args)
+        # Delete the ones that I don't need
         del(counts['date'])
         del(counts['time'])
         del(counts['submit'])
         # TODO: This shouldn't be hardcoded to my username
         user = db.get_user("wel2138")
+        # Give those arguments to the database
         db.add_headcount(user['id'], current_time, provided_time, counts)
         return redirect(url_for('show_main'))
 
 
-@app.route("/admin")
-def show_admin():
+def render_admin_page(template_name: str):
+    """Render an admin page, since this code gets repeated three times"""
     db = get_db()
-    users = db.get_all_users(False)
-    usernames = [u['username'] for u in users]
-    admins = db.get_all_users(True)
-    adminnames = [a['username'] for a in admins]
+    usernames = [u['username'] for u in db.get_all_users(False)]
+    adminnames = [a['username'] for a in db.get_all_users(True)]
     return render_template(
-        "admin.html",
+        template_name,
         users=usernames,
         admins=adminnames,
         logs="",
@@ -224,46 +236,54 @@ def show_admin():
             NavButton(url_for("help"), "Help")
         ],
     )
+
+
+@app.route("/admin")
+def show_admin():
+    return render_admin_page("admin.html")
 
 
 @app.route("/admin/edit-admins")
 def show_admin_edit_admins():
     db = get_db()
-    users = db.get_all_users(False)
-    usernames = [u['username'] for u in users]
-    admins = db.get_all_users(True)
-    adminnames = [a['username'] for a in admins]
-    return render_template(
-        "admin-ea.html",
-        users=usernames,
-        admins=adminnames,
-        logs="",
-        buttons=[
-            NavButton(url_for("logout"), "Log Out"),
-            NavButton(url_for("show_main"), "Main"),
-            NavButton(url_for("help"), "Help")
-        ],
-    )
+    if request.args.get("add") is not None:
+        print("Adding admins...")
+        new_admins = request.args.get("new_admins")
+        if new_admins is not None:
+            new_admins_l = new_admins.split(",")
+            print("\t", new_admins_l)
+            for admin in new_admins_l:
+                print("\tAdding...")
+                if validate_username(admin):
+                    print("\t\tAdded!")
+                    db.add_user(admin, is_admin=True)
+                else:
+                    print("\t\tInvalid format.")
+        return redirect(url_for('show_admin_edit_admins'))
+    elif request.args.get('delete') is not None:
+        print("Deleting admins...")
+        if len(request.args) >= 2:
+            print("\tThere were enough arguments")
+            args_copy = dict(request.args)
+            if "delete" in args_copy.keys():
+                del args_copy["delete"]
+            if "new_admins" in args_copy.keys():
+                del args_copy["new_admins"]
+            for admin in args_copy.keys():
+                print("\tTesting %s..." % admin)
+                if validate_username(admin) and db.does_user_exist(admin):
+                    print("\t\tDeleted!")
+                    db.del_user(admin)
+                else:
+                    print("\t\tInvalid username.")
+        return redirect(url_for('show_admin_edit_admins'))
+    else:
+        return render_admin_page("admin-ea.html")
 
 
 @app.route("/admin/edit-users")
 def show_admin_edit_users():
-    db = get_db()
-    users = db.get_all_users(False)
-    usernames = [u['username'] for u in users]
-    admins = db.get_all_users(True)
-    adminnames = [a['username'] for a in admins]
-    return render_template(
-        "admin-eu.html",
-        users=usernames,
-        admins=adminnames,
-        logs="",
-        buttons=[
-            NavButton(url_for("logout"), "Log Out"),
-            NavButton(url_for("show_main"), "Main"),
-            NavButton(url_for("help"), "Help")
-        ],
-    )
+    return render_admin_page("admin-eu.html")
 
 
 @app.route("/logout")

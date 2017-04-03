@@ -113,6 +113,11 @@ class HCDB:
         """Return the user, if one exists with the provided username"""
         return self._executeone(HCDB.GET_USER_Q, (username,))
 
+    def does_user_exist(self, username):
+        """Returns True if that username is in the database, False if not."""
+        return True if len(self._execute(HCDB.GET_USER_Q, (username, ))
+                           .fetchall()) > 0 else False
+
     def get_all_users(self, filter_by_admin: bool):
         """Get all of the users from the database, optionally filtering by
         admin status.
