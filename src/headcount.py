@@ -243,39 +243,48 @@ def show_admin():
     return render_admin_page("admin.html")
 
 
+def add_user(usernames: list, admin: bool) -> bool:
+    """Validate, then add, a new user"""
+    db = get_db()
+    for name in usernames:
+        # If it's a valid username,
+        if validate_username(name):
+            # Add it to the database
+            db.add_user(name, is_admin=admin)
+            return True
+    return False
+
+
 @app.route("/admin/edit-admins")
 def show_admin_edit_admins():
+    # Get a DB connection
     db = get_db()
+    # The arguments should have a key "add" if the user clicked the "+" button
     if request.args.get("add") is not None:
-        print("Adding admins...")
+        # In a well-formatted request, this is a comma-separated list
         new_admins = request.args.get("new_admins")
-        if new_admins is not None:
-            new_admins_l = new_admins.split(",")
-            print("\t", new_admins_l)
-            for admin in new_admins_l:
-                print("\tAdding...")
-                if validate_username(admin):
-                    print("\t\tAdded!")
-                    db.add_user(admin, is_admin=True)
-                else:
-                    print("\t\tInvalid format.")
+        # Split into a list
+        new_admins_l = new_admins.split(",")
+        # Add all of those users
+        add_user(new_admins_l, True)
+        # Strip all of the request stuff off of the url
         return redirect(url_for('show_admin_edit_admins'))
     elif request.args.get('delete') is not None:
-        print("Deleting admins...")
-        if len(request.args) >= 2:
-            print("\tThere were enough arguments")
-            args_copy = dict(request.args)
-            if "delete" in args_copy.keys():
-                del args_copy["delete"]
-            if "new_admins" in args_copy.keys():
-                del args_copy["new_admins"]
-            for admin in args_copy.keys():
-                print("\tTesting %s..." % admin)
-                if validate_username(admin) and db.does_user_exist(admin):
-                    print("\t\tDeleted!")
-                    db.del_user(admin)
-                else:
-                    print("\t\tInvalid username.")
+        # The arguments should have a key "delete" if the user clicked the
+        # trash bin
+        # Copy the request, since we need to make changes
+        args_copy = dict(request.args)
+        # Delete this key, since we don't need it
+        del args_copy["delete"]
+        # If the request also has a new_admins key, delete that too
+        if "new_admins" in args_copy.keys():
+            del args_copy["new_admins"]
+        # For all of the remaining keys,
+        for admin in args_copy.keys():
+            # If it is a valid username and that users is in the database,
+            if validate_username(admin) and db.does_user_exist(admin):
+                # Delete them.
+                db.del_user(admin)
         return redirect(url_for('show_admin_edit_admins'))
     else:
         return render_admin_page("admin-ea.html")
@@ -283,7 +292,38 @@ def show_admin_edit_admins():
 
 @app.route("/admin/edit-users")
 def show_admin_edit_users():
-    return render_admin_page("admin-eu.html")
+    # Get a DB connection
+    db = get_db()
+    # The arguments should have a key "add" if the user clicked the "+" button
+    if request.args.get("add") is not None:
+        # In a well-formatted request, this is a comma-separated list
+        new_users = request.args.get("new_users")
+        # Split into a list
+        new_users_l = new_users.split(",")
+        # Add all of those users
+        add_user(new_users_l, False)
+        # Strip all of the request stuff off of the url
+        return redirect(url_for('show_admin_edit_users'))
+    elif request.args.get('delete') is not None:
+        # The arguments should have a key "delete" if the user clicked the
+        # trash bin
+        # Copy the request, since we need to make changes
+        args_copy = dict(request.args)
+        # Delete this key, since we don't need it
+        del args_copy["delete"]
+        # If the request also has a new_admins key, delete that too
+        # TODO: This doesn't work because the HTML is wrong
+        if "new_users" in args_copy.keys():
+            del args_copy["new_users"]
+        # For all of the remaining keys,
+        for user in args_copy.keys():
+            # If it is a valid username and that users is in the database,
+            if validate_username(user) and db.does_user_exist(user):
+                # Delete them.
+                db.del_user(user)
+        return redirect(url_for('show_admin_edit_users'))
+    else:
+        return render_admin_page("admin-eu.html")
 
 
 @app.route("/logout")
