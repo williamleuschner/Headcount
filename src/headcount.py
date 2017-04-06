@@ -173,7 +173,7 @@ def show_main():
         rooms.sort(key=config_lexer.Room.sortkey)
         # Get the three newest counts from the database, sorted by the
         # user-provided time
-        newest_counts = db.get_newest_counts(3, hc_db.NewestSort.ENTERED_TIME).fetchall()
+        newest_counts = db.get_newest_counts(3, hc_db.NewestSort.ENTERED_TIME)
         recent_counts = []
         for count in newest_counts:
             room_rows = db.get_roomdata_for_count_id(count['id'])
@@ -200,6 +200,11 @@ def show_main():
         # without arguments
         db = get_db()
         # TODO: Data validation might be important, maybe.
+        if (request.args.get("date") is None or
+            request.args.get("time") is None or
+            request.args.get("submit") is None
+           ):
+            return redirect(url_for('error'))
         provided_time = datetime.datetime.strptime(
             # This doesn't use .get() on purpose. Things should break if there
             # is no data here
@@ -214,10 +219,30 @@ def show_main():
         del(counts['time'])
         del(counts['submit'])
         # TODO: This shouldn't be hardcoded to my username
-        user = db.get_user("wel2138")
+        user = db.get_user_by_name("wel2138")
         # Give those arguments to the database
         db.add_headcount(user['id'], current_time, provided_time, counts)
         return redirect(url_for('show_main'))
+
+
+def get_csv_logs(how_many_rows: int) -> str:
+    """Get the logs from the database and convert them into CSV"""
+    db = get_db()
+    counts = db.get_newest_counts(how_many_rows, hc_db.NewestSort.SUBMIT_TIME)
+    counts_as_string = ""
+    for count in counts:
+        username = db.get_user_by_id(count['user_id'])['username']
+        room_rows = db.get_roomdata_for_count_id(count['id'])
+        counts_as_string += username + ","
+        counts_as_string += count['submit_time'] + "," + \
+                            count['entered_time'] + ","
+        room_counts = {}
+        for row in room_rows:
+            room_counts[row['room']] = row['people_count']
+        room_counts = OrderedDict(sorted(room_counts.items()))
+        counts_as_string += ",".join([str(x) for x in room_counts.values()])
+        counts_as_string += "\n"
+    return counts_as_string
 
 
 def render_admin_page(template_name: str):
@@ -229,7 +254,7 @@ def render_admin_page(template_name: str):
         template_name,
         users=usernames,
         admins=adminnames,
-        logs="",
+        logs=get_csv_logs(3),
         buttons=[
             NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_main"), "Main"),
@@ -255,55 +280,22 @@ def add_user(usernames: list, admin: bool) -> bool:
     return False
 
 
-@app.route("/admin/edit-admins")
-def show_admin_edit_admins():
+def user_management_handler(template: str, redir_page: str,
+                            new_users_field_name: str, admins: bool):
+    """The two admin editing pages are basically the same, except for some
+    slightly different variable names. So, I rolled them into this function."""
     # Get a DB connection
     db = get_db()
     # The arguments should have a key "add" if the user clicked the "+" button
     if request.args.get("add") is not None:
         # In a well-formatted request, this is a comma-separated list
-        new_admins = request.args.get("new_admins")
-        # Split into a list
-        new_admins_l = new_admins.split(",")
-        # Add all of those users
-        add_user(new_admins_l, True)
-        # Strip all of the request stuff off of the url
-        return redirect(url_for('show_admin_edit_admins'))
-    elif request.args.get('delete') is not None:
-        # The arguments should have a key "delete" if the user clicked the
-        # trash bin
-        # Copy the request, since we need to make changes
-        args_copy = dict(request.args)
-        # Delete this key, since we don't need it
-        del args_copy["delete"]
-        # If the request also has a new_admins key, delete that too
-        if "new_admins" in args_copy.keys():
-            del args_copy["new_admins"]
-        # For all of the remaining keys,
-        for admin in args_copy.keys():
-            # If it is a valid username and that users is in the database,
-            if validate_username(admin) and db.does_user_exist(admin):
-                # Delete them.
-                db.del_user(admin)
-        return redirect(url_for('show_admin_edit_admins'))
-    else:
-        return render_admin_page("admin-ea.html")
-
-
-@app.route("/admin/edit-users")
-def show_admin_edit_users():
-    # Get a DB connection
-    db = get_db()
-    # The arguments should have a key "add" if the user clicked the "+" button
-    if request.args.get("add") is not None:
-        # In a well-formatted request, this is a comma-separated list
-        new_users = request.args.get("new_users")
+        new_users = request.args.get(new_users_field_name)
         # Split into a list
         new_users_l = new_users.split(",")
         # Add all of those users
-        add_user(new_users_l, False)
+        add_user(new_users_l, admins)
         # Strip all of the request stuff off of the url
-        return redirect(url_for('show_admin_edit_users'))
+        return redirect(url_for(redir_page))
     elif request.args.get('delete') is not None:
         # The arguments should have a key "delete" if the user clicked the
         # trash bin
@@ -312,18 +304,29 @@ def show_admin_edit_users():
         # Delete this key, since we don't need it
         del args_copy["delete"]
         # If the request also has a new_admins key, delete that too
-        # TODO: This doesn't work because the HTML is wrong
-        if "new_users" in args_copy.keys():
-            del args_copy["new_users"]
+        if new_users_field_name in args_copy.keys():
+            del args_copy[new_users_field_name]
         # For all of the remaining keys,
         for user in args_copy.keys():
             # If it is a valid username and that users is in the database,
             if validate_username(user) and db.does_user_exist(user):
                 # Delete them.
                 db.del_user(user)
-        return redirect(url_for('show_admin_edit_users'))
+        return redirect(url_for(redir_page))
     else:
-        return render_admin_page("admin-eu.html")
+        return render_admin_page(template)
+
+
+@app.route("/admin/edit-admins")
+def show_admin_edit_admins():
+    return user_management_handler("admin-ea.html", "show_admin_edit_admins",
+                            "new_admins", True)
+
+
+@app.route("/admin/edit-users")
+def show_admin_edit_users():
+    return user_management_handler("admin-eu.html", "show_admin_edit_users",
+                            "new_users", False)
 
 
 @app.route("/logout")
@@ -336,7 +339,17 @@ def logout():
 
 @app.route("/help")
 def help():
-    return "This is broken."
+    return "<!DOCTYPE html><html lang='en'><head><title>Help</title><meta " \
+           "charset='utf-8'></head><body><h1>Help</h1><p>Currently, I haven't" \
+           " written a help page yet.</p></body></html>"
+
+
+@app.route("/error")
+def error():
+    return "<!DOCTYPE html><html lang='en'><head><title>Error</title><meta " \
+           "charset='utf-8'></head><body><h1>Error!</h1><p>There was an " \
+           "error! This page will be less ugly and more informative in " \
+           "the future.</body></html>"
 
 
 def main():
