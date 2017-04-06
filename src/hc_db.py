@@ -20,7 +20,8 @@ class HCDB:
     """Headcount Database Interface"""
     # Add a headcount
     ADD_HEADCOUNT_Q = \
-        "INSERT INTO headcounts (user_id, submit_time, entered_time) VALUES (?,?,?)"
+        "INSERT INTO headcounts (user_id, submit_time, entered_time) VALUES " \
+        "(?,?,?)"
     # Add a room to the headcount
     ADD_HC_ROOMS_Q = \
         "INSERT INTO room_data (room, people_count, count_id) VALUES (?,?,?)"
@@ -28,14 +29,19 @@ class HCDB:
     ADD_USER_Q = "INSERT INTO users (username, is_admin) VALUES (?,?)"
     # Get all of a user's data
     GET_USER_Q = "SELECT id, username, is_admin FROM users WHERE username=?"
+    # Get all of a user's data, by ID
+    GET_USER_BY_ID_Q = "SELECT id, username, is_admin FROM users WHERE " \
+                      "id=?"
     # Select users where is_admin is true or false
     GET_USER_BY_ADMIN_Q = "SELECT id, username FROM users WHERE is_admin=?"
     # Delete a user by ID
     DEL_USER_Q = "DELETE FROM users WHERE id=?"
     # Get the most recent ? headcounts
-    NEWEST_COUNTS_Q = "SELECT id, user_id, submit_time, entered_time FROM headcounts ORDER BY %s DESC LIMIT ?"
+    NEWEST_COUNTS_Q = "SELECT id, user_id, submit_time, entered_time FROM " \
+                      "headcounts ORDER BY %s DESC LIMIT ?"
     # Get the room data for a given headcount ID
-    ROOMDATA_Q = "SELECT id, room, people_count FROM room_data WHERE count_id=?"
+    ROOMDATA_Q = "SELECT id, room, people_count FROM room_data WHERE " \
+                 "count_id=? ORDER BY room"
 
     def __init__(self, filename):
         """Create a new instance of the HCDB connector"""
@@ -109,9 +115,13 @@ class HCDB:
         self._execute(HCDB.DEL_USER_Q, (u[0],))
         self.db.commit()
 
-    def get_user(self, username):
+    def get_user_by_name(self, username):
         """Return the user, if one exists with the provided username"""
         return self._executeone(HCDB.GET_USER_Q, (username,))
+
+    def get_user_by_id(self, user_id):
+        """Return the user, if one exists, with the provided ID"""
+        return self._executeone(HCDB.GET_USER_BY_ID_Q, (user_id,))
 
     def does_user_exist(self, username):
         """Returns True if that username is in the database, False if not."""
@@ -135,7 +145,8 @@ class HCDB:
                     ran?"""
         # This only looks like a SQL injection. `sort' is an enum, and both
         # values of the enum are SQL-safe
-        return self._execute(HCDB.NEWEST_COUNTS_Q % (sort.value,), (how_many,))
+        return self._execute(HCDB.NEWEST_COUNTS_Q % (sort.value,), (how_many,
+                                                                    )).fetchall()
 
     def get_roomdata_for_count_id(self, count_id: int):
         """Get the per-room headcounts for a given count ID
