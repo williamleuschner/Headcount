@@ -27,6 +27,7 @@ app = Flask(__name__)
 app.config['SAML_PATH'] = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), 'saml'
 )
+app.secret_key = "::06%grown%GREEK%play%95::"
 #################################
 #      WARNING: DULL EDGES!     #
 # This shouldn't be hard-coded. #
@@ -159,6 +160,8 @@ def login():
 
         return redirect(url_for("index"))
     else:
+        session['username'] = "wel2138"
+        session['log_rows'] = 3
         return redirect(url_for('show_main'))
 
 
@@ -219,7 +222,7 @@ def show_main():
         del(counts['time'])
         del(counts['submit'])
         # TODO: This shouldn't be hardcoded to my username
-        user = db.get_user_by_name("wel2138")
+        user = db.get_user_by_name(session['username'])
         # Give those arguments to the database
         db.add_headcount(user['id'], current_time, provided_time, counts)
         return redirect(url_for('show_main'))
@@ -254,7 +257,7 @@ def render_admin_page(template_name: str):
         template_name,
         users=usernames,
         admins=adminnames,
-        logs=get_csv_logs(3),
+        logs=get_csv_logs(session['log_rows']),
         buttons=[
             NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_main"), "Main"),
@@ -265,6 +268,10 @@ def render_admin_page(template_name: str):
 
 @app.route("/admin")
 def show_admin():
+    do_update_rows = request.args.get("update-rows")
+    new_rows = request.args.get("rows")
+    if do_update_rows is not None and new_rows is not None:
+        session['log_rows'] = new_rows
     return render_admin_page("admin.html")
 
 
@@ -319,12 +326,21 @@ def user_management_handler(template: str, redir_page: str,
 
 @app.route("/admin/edit-admins")
 def show_admin_edit_admins():
+    # TODO: This doesn't update the value that's displayed. Fix!
+    do_update_rows = request.args.get("update-rows")
+    new_rows = request.args.get("rows")
+    if do_update_rows is not None and new_rows is not None:
+        session['log_rows'] = new_rows
     return user_management_handler("admin-ea.html", "show_admin_edit_admins",
                             "new_admins", True)
 
 
 @app.route("/admin/edit-users")
 def show_admin_edit_users():
+    do_update_rows = request.args.get("update-rows")
+    new_rows = request.args.get("rows")
+    if do_update_rows is not None and new_rows is not None:
+        session['log_rows'] = new_rows
     return user_management_handler("admin-eu.html", "show_admin_edit_users",
                             "new_users", False)
 

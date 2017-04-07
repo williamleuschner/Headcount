@@ -2,12 +2,16 @@
 {% block content %}
 <div class="header-group">
     <h2>Logs</h2>
-    <select>
-        <option value="0.5">30 minutes</option>
-        <option value="1">1 hour</option>
-        <option value="2">2 hours</option>
-        <option value="5">5 hours</option>
-    </select>
+    <form>
+        <select name="rows">
+            <option value="3">3 rows</option>
+            <option value="5">5 rows</option>
+            <option value="10">10 rows</option>
+            <option value="30">30 rows</option>
+            <option value="100">100 rows</option>
+        </select>
+        <button name="update-rows" value="true">Update</button>
+    </form>
 </div>
 <textarea readonly="true">{{ logs }}</textarea>
 <a name="admins"></a>
