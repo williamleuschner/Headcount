@@ -79,6 +79,13 @@ def validate_username(test_string: str) -> bool:
     return USERNAME_REGEX.match(test_string) is not None
 
 
+def is_admin(username: str) -> bool:
+    """Returns True if the user is an administrator, False if they are not (
+    or if they don't exist, since non-existent users cannot be 
+    administrators."""
+    db = get_db()
+    return int(db.get_user_by_name(username)['is_admin']) == 1
+
 
 def init_saml_auth(req):
     auth = OneLogin_Saml2_Auth(req, custom_base_path=app.config['SAML_PATH'])
@@ -268,11 +275,14 @@ def render_admin_page(template_name: str):
 
 @app.route("/admin")
 def show_admin():
-    do_update_rows = request.args.get("update-rows")
-    new_rows = request.args.get("rows")
-    if do_update_rows is not None and new_rows is not None:
-        session['log_rows'] = new_rows
-    return render_admin_page("admin.html")
+    if is_admin(session['username']):
+        do_update_rows = request.args.get("update-rows")
+        new_rows = request.args.get("rows")
+        if do_update_rows is not None and new_rows is not None:
+            session['log_rows'] = new_rows
+        return render_admin_page("admin.html")
+    else:
+        return redirect(url_for('error'))
 
 
 def add_user(usernames: list, admin: bool) -> bool:
