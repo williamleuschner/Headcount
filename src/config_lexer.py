@@ -78,7 +78,8 @@ class Room(object):
         self.nickname = nickname
 
     def __repr__(self):
-        return "Room( name=\"%s\", max_occupancy=%s, svg_id=\"%s\", nickname=\"%s\" )" % (
+        return "Room( name=\"%s\", max_occupancy=%s, svg_id=\"%s\", " \
+               "nickname=\"%s\" )" % (
             self.name,
             self.max_occupancy,
             self.svg_id,
