@@ -96,7 +96,7 @@ def authenticated(decoratee):
         if "username" in session.keys():
             return decoratee(*args, **kwargs)
         else:
-            return redirect(url_for("error"))
+            return redirect(url_for("login"))
     return wrapper
 
 
@@ -113,9 +113,7 @@ def admin_authenticated(decoratee):
                 # view this page
                 return redirect(url_for("error"))
         else:
-            # TODO: Error Message: You need to be logged in to view this
-            # page
-            return redirect(url_for("error"))
+            return redirect(url_for("login"))
     return wrapper
 
 
