@@ -15,6 +15,8 @@ from urllib.parse import urlparse
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
+from functools import update_wrapper, wraps
+
 import config_lexer
 import hc_db
 import datetime
@@ -85,6 +87,36 @@ def is_admin(username: str) -> bool:
     administrators."""
     db = get_db()
     return int(db.get_user_by_name(username)['is_admin']) == 1
+
+
+def authenticated(decoratee):
+    """Decorator to check whether the user is authenticated"""
+    @wraps(decoratee)
+    def wrapper(*args, **kwargs):
+        if "username" in session.keys():
+            return decoratee(*args, **kwargs)
+        else:
+            return redirect(url_for("error"))
+    return wrapper
+
+
+def admin_authenticated(decoratee):
+    """Decorator to check whether the user is authenticated and an 
+    administrator"""
+    @wraps(decoratee)
+    def wrapper(*args, **kwargs):
+        if "username" in session.keys():
+            if is_admin(session['username']):
+                return decoratee(*args, **kwargs)
+            else:
+                # TODO: Error Message: You need to be an administrator to
+                # view this page
+                return redirect(url_for("error"))
+        else:
+            # TODO: Error Message: You need to be logged in to view this
+            # page
+            return redirect(url_for("error"))
+    return wrapper
 
 
 def init_saml_auth(req):
@@ -172,8 +204,8 @@ def login():
         return redirect(url_for('show_main'))
 
 
-# Needs authentication code
 @app.route("/main")
+@authenticated
 def show_main():
     # If there is no submit argument, just render the page
     if request.args.get("submit", "") == "":
@@ -274,15 +306,13 @@ def render_admin_page(template_name: str):
 
 
 @app.route("/admin")
+@admin_authenticated
 def show_admin():
-    if is_admin(session['username']):
-        do_update_rows = request.args.get("update-rows")
-        new_rows = request.args.get("rows")
-        if do_update_rows is not None and new_rows is not None:
-            session['log_rows'] = new_rows
-        return render_admin_page("admin.html")
-    else:
-        return redirect(url_for('error'))
+    do_update_rows = request.args.get("update-rows")
+    new_rows = request.args.get("rows")
+    if do_update_rows is not None and new_rows is not None:
+        session['log_rows'] = new_rows
+    return render_admin_page("admin.html")
 
 
 def add_user(usernames: list, admin: bool) -> bool:
@@ -335,6 +365,7 @@ def user_management_handler(template: str, redir_page: str,
 
 
 @app.route("/admin/edit-admins")
+@admin_authenticated
 def show_admin_edit_admins():
     # TODO: This doesn't update the value that's displayed. Fix!
     do_update_rows = request.args.get("update-rows")
@@ -346,6 +377,7 @@ def show_admin_edit_admins():
 
 
 @app.route("/admin/edit-users")
+@admin_authenticated
 def show_admin_edit_users():
     do_update_rows = request.args.get("update-rows")
     new_rows = request.args.get("rows")
@@ -357,6 +389,7 @@ def show_admin_edit_users():
 
 @app.route("/logout")
 def logout():
+    del(session['username'])
     if not app.config["DISABLE_AUTH"]:
         pass
     else:
