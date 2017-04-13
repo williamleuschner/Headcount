@@ -109,8 +109,8 @@ def admin_authenticated(decoratee):
             if is_admin(session['username']):
                 return decoratee(*args, **kwargs)
             else:
-                # TODO: Error Message: You need to be an administrator to
-                # view this page
+                session["last_error"] = "You need to be an administrator to " \
+                                        "view this page."
                 return redirect(url_for("error"))
         else:
             return redirect(url_for("login"))
@@ -241,9 +241,11 @@ def show_main():
         db = get_db()
         # TODO: Data validation might be important, maybe.
         if (request.args.get("date") is None or
-            request.args.get("time") is None or
-            request.args.get("submit") is None
+            request.args.get("time") is None
            ):
+            session["last_error"] = "Submitted headcounts must have a time " \
+                                    "associated with them, and the request " \
+                                    "you just made didn't."
             return redirect(url_for('error'))
         provided_time = datetime.datetime.strptime(
             # This doesn't use .get() on purpose. Things should break if there
@@ -404,10 +406,16 @@ def help():
 
 @app.route("/error")
 def error():
-    return "<!DOCTYPE html><html lang='en'><head><title>Error</title><meta " \
-           "charset='utf-8'></head><body><h1>Error!</h1><p>There was an " \
-           "error! This page will be less ugly and more informative in " \
-           "the future.</body></html>"
+    return render_template(
+        'error.html',
+        message=session["last_error"] if "last_error" in session.keys() else
+        "An unspecified error occurred.",
+        buttons=[
+                NavButton(url_for("logout"), "Log Out"),
+                NavButton(url_for("show_main"), "Main"),
+                NavButton(url_for("help"), "Help")
+            ]
+    )
 
 
 def main():
