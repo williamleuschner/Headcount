@@ -295,6 +295,7 @@ def render_admin_page(template_name: str):
         users=usernames,
         admins=adminnames,
         logs=get_csv_logs(session['log_rows']),
+        log_rows=int(session['log_rows']),
         buttons=[
             NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_main"), "Main"),
