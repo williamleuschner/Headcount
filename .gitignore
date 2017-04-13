@@ -1,2 +1,4 @@
 # Ignore .idea
 .idea/*
+db/hc.db
+*__pycache__*
