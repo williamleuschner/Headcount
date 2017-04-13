@@ -406,10 +406,14 @@ def help():
 
 @app.route("/error")
 def error():
+    if "last_error" in session.keys():
+        error_msg = session["last_error"]
+        del(session["last_error"])
+    else:
+        error_msg = "An unspecified error occurred."
     return render_template(
         'error.html',
-        message=session["last_error"] if "last_error" in session.keys() else
-        "An unspecified error occurred.",
+        message=error_msg,
         buttons=[
                 NavButton(url_for("logout"), "Log Out"),
                 NavButton(url_for("show_main"), "Main"),
