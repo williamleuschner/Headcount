@@ -260,6 +260,24 @@ def show_main():
         del(counts['date'])
         del(counts['time'])
         del(counts['submit'])
+        provided_rooms = set(counts.keys())
+        configured_rooms = set([room.display_name() for room in app.config[
+            'HC_CONFIG']])
+        if provided_rooms != configured_rooms:
+            extraneous = provided_rooms - configured_rooms
+            missing = configured_rooms - provided_rooms
+            session['last_error']
+        badkeys = []
+        oversizekeys = []
+        for key, value in counts.items():
+            if not value.isdigit():
+                badkeys.append(key)
+            else:
+                if int(value) > app.config['HC_CONFIG']
+        if len(badkeys) > 0:
+            session['last_error'] = "Your request had non-numeric values for " \
+                                    "these rooms: " + str(badkeys)
+            return redirect(url_for('error'))
         # TODO: This shouldn't be hardcoded to my username
         user = db.get_user_by_name(session['username'])
         # Give those arguments to the database
@@ -368,7 +386,6 @@ def user_management_handler(template: str, redir_page: str,
 @app.route("/admin/edit-admins")
 @admin_authenticated
 def show_admin_edit_admins():
-    # TODO: This doesn't update the value that's displayed. Fix!
     do_update_rows = request.args.get("update-rows")
     new_rows = request.args.get("rows")
     if do_update_rows is not None and new_rows is not None:
