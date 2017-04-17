@@ -399,9 +399,14 @@ def logout():
 
 @app.route("/help")
 def help():
-    return "<!DOCTYPE html><html lang='en'><head><title>Help</title><meta " \
-           "charset='utf-8'></head><body><h1>Help</h1><p>Currently, I haven't" \
-           " written a help page yet.</p></body></html>"
+    return render_template(
+        "help.html",
+        buttons=[
+            NavButton(url_for("logout"), "Log Out"),
+            NavButton(url_for("show_main"), "Main"),
+            NavButton(url_for("show_admin"), "Administration")
+        ]
+    )
 
 
 @app.route("/error")
