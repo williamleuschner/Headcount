@@ -109,6 +109,21 @@ main .buttons {
             justify-content: space-around;
 }
 
+main p {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+main ul {
+    margin-left: 2rem;
+    margin-right: 1.5rem;
+}
+
+main ul li {
+    margin-bottom: 0.5rem;
+}
+
 .buttons a {
     margin: .5rem  1rem;
 }
