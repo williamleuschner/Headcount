@@ -420,10 +420,10 @@ def error():
         'error.html',
         message=error_msg,
         buttons=[
-                NavButton(url_for("logout"), "Log Out"),
-                NavButton(url_for("show_main"), "Main"),
-                NavButton(url_for("help"), "Help")
-            ]
+            NavButton(url_for("logout"), "Log Out"),
+            NavButton(url_for("show_main"), "Main"),
+            NavButton(url_for("help"), "Help")
+        ]
     )
 
 
