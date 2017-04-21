@@ -8,14 +8,16 @@
 import os
 
 from flask import Flask, request, render_template, redirect, session, \
-    make_response, url_for, g
+    url_for, g
+
+import click
 
 from urllib.parse import urlparse
 
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
-from functools import update_wrapper, wraps
+from functools import wraps
 
 import config_lexer
 import hc_db
@@ -29,12 +31,12 @@ app = Flask(__name__)
 app.config['SAML_PATH'] = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), 'saml'
 )
-app.secret_key = "::06%grown%GREEK%play%95::"
 #################################
 #      WARNING: DULL EDGES!     #
-# This shouldn't be hard-coded. #
+# These shouldn't be hard-coded.#
 #################################
 app.config['DATABASE'] = "../db/hc.db"
+app.secret_key = "::06%grown%GREEK%play%95::"
 #################################
 #     WARNING: SHARP EDGES!     #
 #   SET TO FALSE IN PRODUCTION  #
@@ -67,12 +69,36 @@ def get_db():
     return g.sql_db
 
 
+def add_user(usernames: list, admin: bool) -> bool:
+    """Validate, then add, a new user"""
+    db = get_db()
+    for name in usernames:
+        # If it's a valid username,
+        if validate_username(name):
+            # Add it to the database
+            db.add_user(name, is_admin=admin)
+            return True
+    return False
+
+
 @app.cli.command("initdb")
 def initdb_command():
     """Initialize the database"""
     db = get_db()
     with app.open_resource('../db/hc.schema', mode='r') as f:
         db.initialize(f)
+
+
+@app.cli.command("add_admin")
+@click.argument("username")
+def add_admin_command(username):
+    """Set the given username as an administrator in the database"""
+    if add_user([username, ], True):
+        print("Successfully added %s as an administrator." % (username,))
+    else:
+        print("Failed to add %s as an administrator. Have you run the initdb "
+              "command? Are you sure that string fits the RIT username "
+              "format?" % (username, ))
 
 
 def validate_username(test_string: str) -> bool:
@@ -134,7 +160,7 @@ def prepare_flask_request(req):
     }
 
 
-@app.route("/")
+@app.route("/index")
 def index():
     return render_template('index.html')
 
@@ -273,7 +299,8 @@ def show_main():
             if not value.isdigit():
                 badkeys.append(key)
             else:
-                if int(value) > app.config['HC_CONFIG']
+                if int(value) > app.config['HC_CONFIG']:
+                    pass
         if len(badkeys) > 0:
             session['last_error'] = "Your request had non-numeric values for " \
                                     "these rooms: " + str(badkeys)
@@ -332,18 +359,6 @@ def show_admin():
     if do_update_rows is not None and new_rows is not None:
         session['log_rows'] = new_rows
     return render_admin_page("admin.html")
-
-
-def add_user(usernames: list, admin: bool) -> bool:
-    """Validate, then add, a new user"""
-    db = get_db()
-    for name in usernames:
-        # If it's a valid username,
-        if validate_username(name):
-            # Add it to the database
-            db.add_user(name, is_admin=admin)
-            return True
-    return False
 
 
 def user_management_handler(template: str, redir_page: str,

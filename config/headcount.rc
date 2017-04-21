@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# $OpenBSD$
+
+daemon="/usr/local/bin/uwsgi -r /usr/local/_headcount/Headcount/headcount-uwsgi.ini"
+daemon_user="root"
+
+. /etc/rc.d/rc.subr
+
+rc_start() {
+  ${rcexec} "cd /usr/local/_headcount; ${pexp}"
+}
+
+rc_cmd $1
