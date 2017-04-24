@@ -22,7 +22,8 @@ home directory to `/usr/local/_headcount`
  `hc-venv`. Activate the virtualenv.
 5. Use `pip` to install the `requirements.txt` file.
 6. Clone [github.com/pallets/flask.git](https://github.com/pallets/flask.git)
- and run `setup.py install`.
+ and run `setup.py install`. This is necessary because, for whatever reason, 
+ the Flask from `pip` has a heart attack if you try the next command.
 7. `cd` back to `/usr/local/_headcount/Headcount/src` and initialize the 
 application's database by executing `FLASK_APP=headcount.py flask initdb`.
 8. Add the primary administrator's username to the database by executing
@@ -62,5 +63,13 @@ server "headcount.se.rit.edu" {
     }
 }
 ```
+
+
+Also, it may be necessary to increase these two sysctls:
+* `kern.shminfo.semmni=20` (default 10)
+* `kern.shminfo.semmns=100` (default 60)
+
+uWSGI uses a whole bunch of semaphores, and it won't restart properly unless
+these are bumped up.
 
 Enjoy!

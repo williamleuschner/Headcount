@@ -223,7 +223,7 @@ def login():
 
         return redirect(url_for("index"))
     else:
-        session['username'] = "wel2138"
+        session['username'] = "tstuser"
         session['log_rows'] = 3
         return redirect(url_for('show_main'))
 
@@ -377,6 +377,9 @@ def show_admin():
     return render_admin_page("admin.html")
 
 
+def avoid_lockouts():
+
+
 def user_management_handler(template: str, redir_page: str,
                             new_users_field_name: str, admins: bool):
     """The two admin editing pages are basically the same, except for some
@@ -405,8 +408,10 @@ def user_management_handler(template: str, redir_page: str,
             del args_copy[new_users_field_name]
         # For all of the remaining keys,
         for user in args_copy.keys():
-            # If it is a valid username and that users is in the database,
-            if validate_username(user) and db.does_user_exist(user):
+            # If it is a valid username and that users is in the database and
+            #  this action won't lock the user out,
+            if validate_username(user) and db.does_user_exist(user) and \
+                    avoid_lockouts():
                 # Delete them.
                 db.del_user(user)
         return redirect(url_for(redir_page))
