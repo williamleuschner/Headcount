@@ -8,7 +8,7 @@
 import os
 
 from flask import Flask, request, render_template, redirect, session, \
-    url_for, g
+    url_for, g, make_response
 
 import click
 
@@ -226,6 +226,22 @@ def login():
         session['username'] = "wel2138"
         session['log_rows'] = 3
         return redirect(url_for('show_main'))
+
+
+@app.route("/metadata/")
+def metadata():
+    req = prepare_flask_request(request)
+    auth = init_saml_auth(req)
+    settings = auth.get_settings()
+    metadata = settings.get_sp_metadata()
+    errors = settings.validate_metadata(metadata)
+
+    if len(errors) == 0:
+        resp = make_response(metadata, 200)
+        resp.headers['Content-Type'] = "text/xml"
+    else:
+        resp = make_response(', '.join(errors), 500)
+    return resp
 
 
 @app.route("/main")
