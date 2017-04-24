@@ -268,9 +268,9 @@ def show_main():
         return render_template(
             "main.html",
             buttons=[
-                NavButton(url_for("logout"), "Log Out"),
                 NavButton(url_for("show_admin"), "Administration"),
-                NavButton(url_for("help"), "Help")
+                NavButton(url_for("help"), "Help"),
+                NavButton(url_for("logout"), "Log Out")
             ],
             rooms=rooms,
             recent_counts=recent_counts,
@@ -360,9 +360,9 @@ def render_admin_page(template_name: str):
         logs=get_csv_logs(session['log_rows']),
         log_rows=int(session['log_rows']),
         buttons=[
-            NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_main"), "Main"),
-            NavButton(url_for("help"), "Help")
+            NavButton(url_for("help"), "Help"),
+            NavButton(url_for("logout"), "Log Out"),
         ],
     )
 
