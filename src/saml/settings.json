@@ -2,9 +2,9 @@
     "strict": true,
     "debug": true,
     "sp": {
-        "entityId": "https://headcount.se.rit.edu/metadata/",
+        "entityId": "https://headcount.se.rit.edu/saml",
         "assertionConsumerService": {
-            "url": "https://shibboleth.main.ad.rit.edu/?acs",
+            "url": "https://headcount.se.rit.edu/login?acs",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
         },
         "singleLogoutService": {

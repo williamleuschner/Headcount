@@ -1,0 +1,33 @@
+{
+    "security": {
+        "nameIdEncrypted": false,
+        "authnRequestsSigned": false,
+        "logoutRequestSigned": false,
+        "logoutResponseSigned": false,
+        "signMetadata": false,
+        "wantMessagesSigned": false,
+        "wantAssertionsSigned": false,
+        "wantNameId" : true,
+        "wantNameIdEncrypted": false,
+        "wantAssertionsEncrypted": false,
+        "signatureAlgorithm": "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
+        "digestAlgorithm": "http://www.w3.org/2000/09/xmldsig#sha1"
+    },
+    "contactPerson": {
+        "technical": {
+            "givenName": "William Leuschner",
+            "emailAddress": "wel2138@rit.edu"
+        },
+        "support": {
+            "givenName": "William Leuschner",
+            "emailAddress": "wel2138@rit.edu"
+        }
+    },
+    "organization": {
+        "en-US": {
+            "name": "rit_se",
+            "displayname": "RIT Software Engineering Department",
+            "url": "https://se.rit.edu"
+        }
+    }
+}
