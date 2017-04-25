@@ -66,8 +66,8 @@ server "headcount.se.rit.edu" {
 
 
 Also, it may be necessary to increase these two sysctls:
-* `kern.shminfo.semmni=20` (default 10)
-* `kern.shminfo.semmns=100` (default 60)
+* `kern.seminfo.semmni=100` (default 10)
+* `kern.seminfo.semmns=500` (default 60)
 
 uWSGI uses a whole bunch of semaphores, and it won't restart properly unless
 these are bumped up.
