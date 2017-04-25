@@ -378,6 +378,7 @@ def show_admin():
 
 
 def avoid_lockouts():
+    pass
 
 
 def user_management_handler(template: str, redir_page: str,
