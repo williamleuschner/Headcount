@@ -10,8 +10,10 @@
         "wantNameId" : true,
         "wantNameIdEncrypted": false,
         "wantAssertionsEncrypted": false,
-        "signatureAlgorithm": "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
-        "digestAlgorithm": "http://www.w3.org/2000/09/xmldsig#sha1"
+        "metadataValidUntil": null,
+        "metadataCacheDuration": null,
+        "signatureAlgorithm": "http://www.w3.org/2000/09/xmldsig-more#rsa-sha512",
+        "digestAlgorithm": "http://www.w3.org/2000/09/xmlenc#sha512"
     },
     "contactPerson": {
         "technical": {
