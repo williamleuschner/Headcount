@@ -230,7 +230,7 @@ def login():
         return redirect(url_for("index"))
     else:
         # TODO: This shouldn't be an administrator's username.
-        session['username'] = "kmmvse"
+        session['username'] = "tstusr"
         session['log_rows'] = 3
         return redirect(url_for('show_main'))
 
