@@ -48,6 +48,8 @@ NavButton = namedtuple("NavButton", "location name")
 
 USERNAME_REGEX = re.compile(r"^[a-z]{3}([a-z]{3}|[0-9]{4})$")
 
+allowed_row_counts = [3, 5, 10, 30, 100]
+
 
 def connect_db():
     """Connects to the application database"""
@@ -104,7 +106,11 @@ def add_admin_command(username):
 def validate_username(test_string: str) -> bool:
     """Test to make sure the username provided could be a valid RIT username
     :return True if the username is OK, False if it isn't"""
-    return USERNAME_REGEX.match(test_string) is not None
+    if USERNAME_REGEX.match(test_string) is not None:
+        return True
+    else:
+        session['last_error'] = "That's not a valid username."
+        return False
 
 
 def is_admin(username: str) -> bool:
@@ -223,7 +229,8 @@ def login():
 
         return redirect(url_for("index"))
     else:
-        session['username'] = "tstuser"
+        # TODO: This shouldn't be an administrator's username.
+        session['username'] = "kmmvse"
         session['log_rows'] = 3
         return redirect(url_for('show_main'))
 
@@ -251,7 +258,7 @@ def show_main():
     if request.args.get("submit", "") == "":
         db = get_db()
         now = datetime.datetime.now()
-        rooms = [room for room in app.config["HC_CONFIG"]]
+        rooms = [room for room in app.config["HC_CONFIG"].values()]
         rooms.sort(key=config_lexer.Room.sortkey)
         # Get the three newest counts from the database, sorted by the
         # user-provided time
@@ -282,16 +289,15 @@ def show_main():
         # without arguments
         db = get_db()
         # TODO: Data validation might be important, maybe.
-        if (request.args.get("date") is None or
-            request.args.get("time") is None
+        if (
+                request.args.get("date") is None or
+                request.args.get("time") is None
            ):
             session["last_error"] = "Submitted headcounts must have a time " \
                                     "associated with them, and the request " \
                                     "you just made didn't."
             return redirect(url_for('error'))
         provided_time = datetime.datetime.strptime(
-            # This doesn't use .get() on purpose. Things should break if there
-            # is no data here
             request.args['date'] + "T" + request.args['time'],
             "%Y-%m-%dT%H:%M:%S"
         )
@@ -303,25 +309,43 @@ def show_main():
         del(counts['time'])
         del(counts['submit'])
         provided_rooms = set(counts.keys())
-        configured_rooms = set([room.display_name() for room in app.config[
-            'HC_CONFIG']])
+        configured_rooms = set([room.name for room in app.config[
+            'HC_CONFIG'].values()])
         if provided_rooms != configured_rooms:
             extraneous = provided_rooms - configured_rooms
             missing = configured_rooms - provided_rooms
-            session['last_error']
+            session['last_error'] = "You provided extraneous rooms %s and did "\
+                                    "not include required rooms %s." %\
+                                    (extraneous, missing)
+            return redirect(url_for("error"))
         badkeys = []
         oversizekeys = []
+        print(counts)
+        # Loop over all of the provided rooms
         for key, value in counts.items():
+            # Value is actually a list, so just take the last item out of it
+            value = value[-1:][0]
+            # If it's not numeric,
             if not value.isdigit():
+                # Mark the key as bad
                 badkeys.append(key)
-            else:
-                if int(value) > app.config['HC_CONFIG']:
-                    pass
+            elif int(value) > app.config['HC_CONFIG'][key].max_occupancy:
+                # If the value is larger than the value configured in the
+                # config file, mark the key as too big
+                oversizekeys.append(key)
+        # If the length of the badkeys list is non-zero, throw back an error
         if len(badkeys) > 0:
             session['last_error'] = "Your request had non-numeric values for " \
                                     "these rooms: " + str(badkeys)
-            return redirect(url_for('error'))
-        # TODO: This shouldn't be hardcoded to my username
+            return redirect(url_for("error"))
+        # If the length of the oversize keys list is non-zero, throw back an
+        # error
+        if len(oversizekeys) > 0:
+            session['last_error'] = "The application isn't configured to " \
+                                    "allow that many people in these rooms: " \
+                                    "%s" % (str(oversizekeys),)
+            return redirect(url_for("error"))
+        # Get the requesting user from the database
         user = db.get_user_by_name(session['username'])
         # Give those arguments to the database
         db.add_headcount(user['id'], current_time, provided_time, counts)
@@ -378,7 +402,11 @@ def show_admin():
 
 
 def avoid_lockouts():
-    pass
+    db = get_db()
+    if db.count_admins()[0][0] <= 2:
+        session['last_error'] = "You can't delete all of the administrators."
+        return False
+    return True
 
 
 def user_management_handler(template: str, redir_page: str,
@@ -409,12 +437,31 @@ def user_management_handler(template: str, redir_page: str,
             del args_copy[new_users_field_name]
         # For all of the remaining keys,
         for user in args_copy.keys():
-            # If it is a valid username and that users is in the database and
-            #  this action won't lock the user out,
-            if validate_username(user) and db.does_user_exist(user) and \
-                    avoid_lockouts():
-                # Delete them.
-                db.del_user(user)
+            # If it is a valid username and that user is in the database
+            if validate_username(user) and db.does_user_exist(user):
+                # If we're deleting administrators,
+                if admins:
+                    # Avoid locking everybody out
+                    if avoid_lockouts() and is_admin(user):
+                        db.del_user(user)
+                    else:
+                        return redirect(url_for('error'))
+                else:
+                    # Otherwise, just delete the user
+                    if not is_admin(user):
+                        db.del_user(user)
+                    else:
+                        session["last_error"] = "%s is not an administrator." %\
+                                                (user,)
+            else:
+                # If it wasn't a valid username or the user wasn't in the
+                # database,
+                # If the user wasn't in the database, no error will be set,
+                # so set it
+                if "last_error" not in session.keys():
+                    session['last_error'] = "That user doesn't exist."
+                # Redirect to the error page
+                return redirect(url_for('error'))
         return redirect(url_for(redir_page))
     else:
         return render_admin_page(template)
@@ -425,10 +472,11 @@ def user_management_handler(template: str, redir_page: str,
 def show_admin_edit_admins():
     do_update_rows = request.args.get("update-rows")
     new_rows = request.args.get("rows")
-    if do_update_rows is not None and new_rows is not None:
+    if do_update_rows is not None and new_rows is not None and new_rows in \
+            allowed_row_counts:
         session['log_rows'] = new_rows
     return user_management_handler("admin-ea.html", "show_admin_edit_admins",
-                            "new_admins", True)
+                                   "new_admins", True)
 
 
 @app.route("/admin/edit-users")
@@ -439,7 +487,7 @@ def show_admin_edit_users():
     if do_update_rows is not None and new_rows is not None:
         session['log_rows'] = new_rows
     return user_management_handler("admin-eu.html", "show_admin_edit_users",
-                            "new_users", False)
+                                   "new_users", False)
 
 
 @app.route("/logout")

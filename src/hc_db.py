@@ -42,6 +42,7 @@ class HCDB:
     # Get the room data for a given headcount ID
     ROOMDATA_Q = "SELECT id, room, people_count FROM room_data WHERE " \
                  "count_id=? ORDER BY room"
+    NUMADMINS_Q = "SELECT COUNT(username) FROM users WHERE is_admin=1"
 
     def __init__(self, filename):
         """Create a new instance of the HCDB connector"""
@@ -152,6 +153,10 @@ class HCDB:
         """Get the per-room headcounts for a given count ID
         :param count_id The associated headcount ID to get data for"""
         return self._execute(HCDB.ROOMDATA_Q, (count_id,))
+
+    def count_admins(self):
+        """Return the current number of administrators."""
+        return self._execute(HCDB.NUMADMINS_Q).fetchall()
 
     def close(self):
         """Closes the database connection"""

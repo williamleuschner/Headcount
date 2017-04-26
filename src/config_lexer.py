@@ -96,11 +96,18 @@ class Room(object):
 def p_room_set(p):
     """room_set : room
                 | room_set room"""
+    # If we're collapsing a room set and a room,
     if len(p) > 2:
+        # Move the room_set to the "parsed" slot
         p[0] = p[1]
-        p[0].append(p[2])
+        # Add the new room to the dict
+        p[0][p[2].name] = p[2]
+    # If we're collapsing just a room,
     elif len(p) == 2:
-        p[0] = [p[1], ]
+        # Set p[0], the "parsed" slot, to be the room object, in a dict keyed
+        # by room name
+        p[0] = dict()
+        p[0][p[1].name] = p[1]
 
 
 def p_room(p):
