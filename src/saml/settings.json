@@ -8,15 +8,26 @@
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
         },
         "singleLogoutService": {
-            "url": "https://shibboleth.main.ad.rit.edu/?sls",
+            "url": "https://headcount.se.rit.edu/login?sls",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
         },
         "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
         "x509cert": "",
-        "privateKey": ""
+        "privateKey": "",
+        "attributeConsumingService": {
+            "serviceName": "Headcount",
+            "serviceDescription": "Head counts for RIT SE Dept. team rooms",
+            "requestedAttributes": [
+                {
+                    "name": "urn:oid:0.9.2342.19200300.100.1.1",
+                    "isRequired": true,
+                    "friendlyName": "uid"
+                }
+            ]
+        }
     },
     "idp": {
-        "entityId": "https://shibboleth.main.ad.rit.edu/saml/metadata/test",
+        "entityId": "https://shibboleth.main.ad.rit.edu/idp/shibboleth",
         "singleSignOnService": {
             "url": "https://shibboleth.main.ad.rit.edu/idp/profile/SAML2/Redirect/SSO",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
@@ -25,6 +36,6 @@
             "url": "https://shibboleth.main.ad.rit.edu/logout.html?logout=1",
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
         },
-        "x509cert": ""
+        "x509cert": "MIIDVDCCAjygAwIBAgIVAMPFek+px9vIGJ0/+QhwyptEXQqaMA0GCSqGSIb3DQEBBQUAMCUxIzAh\nBgNVBAMTGnNoaWJib2xldGgubWFpbi5hZC5yaXQuZWR1MB4XDTA4MTEyNTE4MzU0N1oXDTI4MTEy\nNTE4MzU0N1owJTEjMCEGA1UEAxMac2hpYmJvbGV0aC5tYWluLmFkLnJpdC5lZHUwggEiMA0GCSqG\nSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3LLiBrUjXO+LFsfrk4u5lQ62FfXJEPJnmL6/4WVsOtpLW\nMQZesuiOlyhFTsTNdlmFp37UTcZ9MJsTeG/1M87BxUnPB22Qn7TPNLh7Oi3QDinVyukPXRl6B/bH\ndtMhlq5V+E8rNyITaOc7YB6GkNLBOVBRemBcttmlwz5whHWwU/MNdQlBf4/KIu7mV5dpWQrnPvaT\nk3nle4vOtbPThipD5jiD2r/a4/l5gROJRuLvxQaiNfBfACwowp9R9DHKlpqD4EPSEv2v0RXJyFx4\npMi/hnfmSjvIQi9s+J5sKzyNN3JtCzrVO5GSiddO46bRtvp5H/rz0cNpp5rnjz+NRkarAgMBAAGj\nezB5MFgGA1UdEQRRME+CGnNoaWJib2xldGgubWFpbi5hZC5yaXQuZWR1hjFodHRwczovL3NoaWJi\nb2xldGgubWFpbi5hZC5yaXQuZWR1L2lkcC9zaGliYm9sZXRoMB0GA1UdDgQWBBRJRQ19Vjpa3qkt\nIoVtEqdLonWQFTANBgkqhkiG9w0BAQUFAAOCAQEAmXDiVgm0fmvvhtzYO2GFBIpZNNzd+8oujnUN\nTKNAliKToarQvLDTQUENh2L558u3OvwFXlC7hcnGNKin4VjQ/GWps+J7dQ67gCiYMquyf5i9UE/j\n5ilriNXmSwzwvB/YPJzEMIFd2XBI550ODeIMf5B0gGx1EMB1jyWpy4iOZbMCBbGn0Vo2/AeGyiUm\nT6/qcDnrMTg4fvAqG26kujwPBb42UpkwSo2EOZDp3OGGicpNhWVWca74r8KHYJGNBwXYmZ5ntP5Y\nfd9cElJKFLS21igLGkhr/o4NIm4Q86WvRXW4cHfy8OB9fEIURxSmGeZMYsd0YLh8ouPlWuLl3hWs\nyQ=="
     }
 }

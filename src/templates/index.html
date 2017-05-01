@@ -10,14 +10,14 @@
 <body class="hero-bg">
 <nav class="hero-nav">
     <h1>Headcount</h1>
-    <a class="login" href="{{ url_for( 'login' ) }}">Log In</a>
+    <a class="login" href="{{ url_for( 'login' ) }}?sso">Log In</a>
 </nav>
 <main class="flexy">
     <h2>Headcount is a tool for taking headcounts in SE classrooms.</h2>
     <h3>Have an RIT ID? Click the button to log in.</h3>
     <div class="buttons">
         <!--a class="secondaryButton" href="#">About</a-->
-        <a class="login" href="{{ url_for( 'login' ) }}">Log In</a>
+        <a class="login" href="{{ url_for( 'login' ) }}?sso">Log In</a>
     </div>
 </main>
 </body>

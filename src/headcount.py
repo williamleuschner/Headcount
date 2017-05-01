@@ -42,7 +42,7 @@ app.secret_key = "::06%grown%GREEK%play%95::"
 #   SET TO FALSE IN PRODUCTION  #
 #   I think it's obvious why.   #
 #################################
-app.config['DISABLE_AUTH'] = True
+app.config['DISABLE_AUTH'] = False
 
 NavButton = namedtuple("NavButton", "location name")
 
@@ -179,14 +179,13 @@ def login():
     not_auth_warn = False
     success_slo = False
     attributes = False
-    paint_logout = False
 
     if not app.config['DISABLE_AUTH']:
         if 'sso' in request.args:
-            return redirect(auth.login())
-        elif 'sso2' in request.args:
-            return_to = '%sattrs/' % request.host_url
-            return redirect(auth.login(return_to))
+            return_to = '%smain' % request.host_url
+            redir_to = auth.login(return_to=return_to)
+            print("Request:\n", auth.get_last_request_xml())
+            return redirect(redir_to)
         elif 'slo' in request.args:
             name_id = None
             session_index = None
@@ -194,25 +193,32 @@ def login():
                 name_id = session['samlNameId']
             if 'samlSessionIndex' in session:
                 session_index = session['samlSessionIndex']
-
             return redirect(
                 auth.logout(name_id=name_id, session_index=session_index))
         elif 'acs' in request.args:
+            print("Response:")
             auth.process_response()
+            print(auth.get_last_response_xml())
             errors = auth.get_errors()
             not_auth_warn = not auth.is_authenticated()
             if len(errors) == 0:
+                if not auth.is_authenticated():
+                    session["last_error"] = "You're not authenticated!"
+                    return redirect(url_for("error"))
                 session['samlUserdata'] = auth.get_attributes()
                 session['samlNameId'] = auth.get_nameid()
                 session['samlSessionIndex'] = auth.get_session_index()
+                session['username'] = session['samlUserdata'].get("uid")
                 self_url = OneLogin_Saml2_Utils.get_self_url(req)
                 if (
                                 'RelayState' in request.form and
                                 self_url != request.form['RelayState']
                 ):
                     return redirect(auth.redirect_to(request.form['RelayState']))
+            else:
+                session["last_error"] = "There was an error while handling the SAML response: " + str(auth.get_last_error_reason())
+                return redirect(url_for("error"))
         elif 'sls' in request.args:
-            # Activating the Space Launch System...
             dscb = lambda: session.clear()
             url = auth.process_slo(delete_session_cb=dscb)
             errors = auth.get_errors()
@@ -223,11 +229,11 @@ def login():
                     success_slo = True
 
         if 'samlUserdata' in session:
-            paint_logout = True
             if len(session['samlUserdata']) > 0:
                 attributes = session['samlUserdata'].items()
 
-        return redirect(url_for("index"))
+        #return redirect(url_for("index"))
+        return "None of the if statements took."
     else:
         # TODO: This shouldn't be an administrator's username.
         session['username'] = "tstusr"
