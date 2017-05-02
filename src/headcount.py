@@ -206,6 +206,11 @@ def login():
                 session['samlNameId'] = auth.get_nameid()
                 session['samlSessionIndex'] = auth.get_session_index()
                 session['username'] = session['samlUserdata'].get("uid")
+                if not is_user(session['username']):
+                    session['last_error'] = "Unfortunately, you're not an " \
+                                            "authorized user of this " \
+                                            "application."
+                    return redirect(url_for("error"))
                 self_url = OneLogin_Saml2_Utils.get_self_url(req)
                 if (
                                 'RelayState' in request.form and
