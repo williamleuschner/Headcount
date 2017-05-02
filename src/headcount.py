@@ -134,7 +134,7 @@ def authenticated(decoratee):
         if "username" in session.keys() and is_user(session['username']):
             return decoratee(*args, **kwargs)
         else:
-            return redirect(url_for("login"))
+            return redirect(url_for("login") + "?sso")
     return wrapper
 
 
@@ -151,7 +151,7 @@ def admin_authenticated(decoratee):
                                         "view this page."
                 return redirect(url_for("error"))
         else:
-            return redirect(url_for("login"))
+            return redirect(url_for("login") + "?sso")
     return wrapper
 
 
@@ -197,10 +197,11 @@ def login():
                 auth.logout(name_id=name_id, session_index=session_index))
         elif 'acs' in request.args:
             errors = auth.get_errors()
+            # if not auth.is_authenticated():
+            #     session["last_error"] = "RIT's Single-Sign On service " \
+            #                             "says that you're not authenticated!"
+            #     return redirect(url_for("error"))
             if len(errors) == 0:
-                if not auth.is_authenticated():
-                    session["last_error"] = "You're not authenticated!"
-                    return redirect(url_for("error"))
                 session['samlUserdata'] = auth.get_attributes()
                 session['samlNameId'] = auth.get_nameid()
                 session['samlSessionIndex'] = auth.get_session_index()
