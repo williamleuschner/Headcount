@@ -36,7 +36,7 @@ app.config['SAML_PATH'] = os.path.join(
 # These shouldn't be hard-coded.#
 #################################
 app.config['DATABASE'] = "../db/hc.db"
-app.secret_key = "::06%grown%GREEK%play%95::"
+app.secret_key = os.environ["HEADCOUNT_SECRET_KEY"]
 #################################
 #     WARNING: SHARP EDGES!     #
 #   SET TO FALSE IN PRODUCTION  #
@@ -121,11 +121,17 @@ def is_admin(username: str) -> bool:
     return int(db.get_user_by_name(username)['is_admin']) == 1
 
 
+def is_user(username: str) -> bool:
+    """Returns True if the user is in the database, False if they are not."""
+    db = get_db()
+    return not db.get_user_by_name(username) is None
+
+
 def authenticated(decoratee):
     """Decorator to check whether the user is authenticated"""
     @wraps(decoratee)
     def wrapper(*args, **kwargs):
-        if "username" in session.keys():
+        if "username" in session.keys() and is_user(session['username']):
             return decoratee(*args, **kwargs)
         else:
             return redirect(url_for("login"))
@@ -176,31 +182,21 @@ def login():
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
     errors = []
-    not_auth_warn = False
     success_slo = False
-    attributes = False
 
     if not app.config['DISABLE_AUTH']:
         if 'sso' in request.args:
             return_to = '%smain' % request.host_url
-            redir_to = auth.login(return_to=return_to)
-            print("Request:\n", auth.get_last_request_xml())
-            return redirect(redir_to)
+            return redirect(auth.login(return_to=return_to))
         elif 'slo' in request.args:
-            name_id = None
-            session_index = None
-            if 'samlNameId' in session:
-                name_id = session['samlNameId']
-            if 'samlSessionIndex' in session:
-                session_index = session['samlSessionIndex']
+            name_id = session['samlNameId'] if 'samlNameId' in session \
+                else None
+            session_index = session['samlSessionIndex'] if 'samlSessionIndex' \
+                in session else None
             return redirect(
                 auth.logout(name_id=name_id, session_index=session_index))
         elif 'acs' in request.args:
-            print("Response:")
-            auth.process_response()
-            print(auth.get_last_response_xml())
             errors = auth.get_errors()
-            not_auth_warn = not auth.is_authenticated()
             if len(errors) == 0:
                 if not auth.is_authenticated():
                     session["last_error"] = "You're not authenticated!"
@@ -214,9 +210,12 @@ def login():
                                 'RelayState' in request.form and
                                 self_url != request.form['RelayState']
                 ):
-                    return redirect(auth.redirect_to(request.form['RelayState']))
+                    return redirect(
+                        auth.redirect_to(request.form['RelayState']))
             else:
-                session["last_error"] = "There was an error while handling the SAML response: " + str(auth.get_last_error_reason())
+                session["last_error"] = "There was an error while handling the"\
+                                        " SAML response: " + str(
+                    auth.get_last_error_reason())
                 return redirect(url_for("error"))
         elif 'sls' in request.args:
             dscb = lambda: session.clear()
@@ -228,14 +227,8 @@ def login():
                 else:
                     success_slo = True
 
-        if 'samlUserdata' in session:
-            if len(session['samlUserdata']) > 0:
-                attributes = session['samlUserdata'].items()
-
-        #return redirect(url_for("index"))
-        return "None of the if statements took."
+        return redirect(url_for("index"))
     else:
-        # TODO: This shouldn't be an administrator's username.
         session['username'] = "tstusr"
         session['log_rows'] = 3
         return redirect(url_for('show_main'))
@@ -294,7 +287,6 @@ def show_main():
         # Otherwise, add a new headcount and then redirect to the same page, but
         # without arguments
         db = get_db()
-        # TODO: Data validation might be important, maybe.
         if (
                 request.args.get("date") is None or
                 request.args.get("time") is None
