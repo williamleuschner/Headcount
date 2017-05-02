@@ -498,7 +498,7 @@ def show_admin_edit_users():
 def logout():
     del(session['username'])
     if not app.config["DISABLE_AUTH"]:
-        pass
+        return redirect(url_for("login") + "?slo")
     else:
         return redirect(url_for('index'))
 
