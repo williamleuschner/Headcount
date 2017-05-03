@@ -124,6 +124,8 @@ def is_admin(username: str) -> bool:
 def is_user(username: str) -> bool:
     """Returns True if the user is in the database, False if they are not."""
     db = get_db()
+    if username is None:
+        return False
     return not db.get_user_by_name(username) is None
 
 
