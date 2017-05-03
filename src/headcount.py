@@ -200,11 +200,11 @@ def login():
         elif 'acs' in request.args:
             auth.process_response()
             errors = auth.get_errors()
-            if not auth.is_authenticated():
-                session["last_error"] = "RIT's Single-Sign On service " \
-                                        "says that you're not authenticated!"
-                return redirect(url_for("error"))
             if len(errors) == 0:
+                if not auth.is_authenticated():
+                    session["last_error"] = "RIT's Single-Sign On service " \
+                                            "says that you're not authenticated!"
+                    return redirect(url_for("error"))
                 session['samlUserdata'] = auth.get_attributes()
                 session['samlNameId'] = auth.get_nameid()
                 session['samlSessionIndex'] = auth.get_session_index()
