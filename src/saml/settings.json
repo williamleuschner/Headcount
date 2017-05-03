@@ -1,6 +1,6 @@
 {
     "strict": true,
-    "debug": true,
+    "debug": false,
     "sp": {
         "entityId": "https://headcount.se.rit.edu/saml",
         "assertionConsumerService": {
@@ -12,8 +12,6 @@
             "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
         },
         "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
-        "x509cert": "",
-        "privateKey": "",
         "attributeConsumingService": {
             "serviceName": "Headcount",
             "serviceDescription": "Head counts for RIT SE Dept. team rooms",
