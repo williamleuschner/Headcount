@@ -209,7 +209,8 @@ def login():
                 session['samlNameId'] = auth.get_nameid()
                 session['samlSessionIndex'] = auth.get_session_index()
                 session['username'] = session['samlUserdata'].get(
-                    "urn:oid:0.9.2342.19200300.100.1.1")
+                    "urn:oid:0.9.2342.19200300.100.1.1")[0]
+                session["log_rows"] = 3
                 if not is_user(session['username']):
                     session['last_error'] = "Unfortunately, you're not an " \
                                             "authorized user of this " \
