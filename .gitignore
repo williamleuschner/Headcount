@@ -2,3 +2,4 @@
 .idea/*
 db/hc.db
 *__pycache__*
+secret.env
