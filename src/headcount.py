@@ -531,11 +531,7 @@ def help():
         ]
     return render_template(
         "help.html",
-        buttons=[
-            NavButton(url_for("logout"), "Log Out"),
-            NavButton(url_for("show_main"), "Main"),
-            NavButton(url_for("show_admin"), "Administration")
-        ]
+        buttons=buttons
     )
 
 
