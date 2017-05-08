@@ -203,7 +203,8 @@ def login():
             if len(errors) == 0:
                 if not auth.is_authenticated():
                     session["last_error"] = "RIT's Single-Sign On service " \
-                                            "says that you're not authenticated!"
+                                            "says that you're not " \
+                                            "authenticated!"
                     return redirect(url_for("error"))
                 session['samlUserdata'] = auth.get_attributes()
                 session['samlNameId'] = auth.get_nameid()
@@ -282,13 +283,20 @@ def show_main():
                 some_dict["counts"][row['room']] = row['people_count']
             some_dict['counts'] = OrderedDict(sorted(some_dict['counts'].items()))
             recent_counts.append(some_dict)
-        return render_template(
-            "main.html",
-            buttons=[
-                NavButton(url_for("show_admin"), "Administration"),
+        if is_admin(session['username']):
+            buttons = [
+                        NavButton(url_for("show_admin"), "Administration"),
+                        NavButton(url_for("help"), "Help"),
+                        NavButton(url_for("logout"), "Log Out")
+                    ]
+        else:
+            buttons = [
                 NavButton(url_for("help"), "Help"),
                 NavButton(url_for("logout"), "Log Out")
-            ],
+            ]
+        return render_template(
+            "main.html",
+            buttons=buttons,
             rooms=rooms,
             recent_counts=recent_counts,
             datewhen=now.strftime("%Y-%m-%d"),
@@ -510,6 +518,17 @@ def logout():
 
 @app.route("/help")
 def help():
+    if is_admin(session['username']):
+        buttons = [
+            NavButton(url_for("logout"), "Log Out"),
+            NavButton(url_for("show_main"), "Main"),
+            NavButton(url_for("show_admin"), "Administration")
+        ]
+    else:
+        buttons = [
+            NavButton(url_for("logout"), "Log Out"),
+            NavButton(url_for("show_main"), "Main"),
+        ]
     return render_template(
         "help.html",
         buttons=[
