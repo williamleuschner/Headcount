@@ -30,6 +30,7 @@ application's database by executing `FLASK_APP=headcount.py flask initdb`.
 `FLASK_APP=headcount.py flask add_admin $ADMIN_NAME`
 9. Change back to `root`
 10. Copy `config/headcount.rc` to `/etc/rc.d/headcount`
+11. Edit /etc/rc.conf.local to add `headcount_flags="/usr/local/_headcount/Headcount/config/headcount-uwsgi.ini"` and `pkg_scripts="httpd headcount"`
 
 Here is a suggested `httpd` configuration:
 
@@ -64,12 +65,5 @@ server "headcount.se.rit.edu" {
 }
 ```
 
-
-Also, it may be necessary to increase these two sysctls:
-* `kern.seminfo.semmni=100` (default 10)
-* `kern.seminfo.semmns=500` (default 60)
-
-uWSGI uses a whole bunch of semaphores, and it won't restart properly unless
-these are bumped up.
 
 Enjoy!

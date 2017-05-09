@@ -2,13 +2,16 @@
 #
 # $OpenBSD$
 
-daemon="/usr/local/bin/uwsgi -r /usr/local/_headcount/Headcount/headcount-uwsgi.ini"
-daemon_user="root"
+daemon="/usr/local/bin/uwsgi"
 
 . /etc/rc.d/rc.subr
 
-rc_start() {
-  ${rcexec} "cd /usr/local/_headcount; ${pexp}"
+rc_stop() {
+  ${rcexec} "${daemon} --stop /var/run/headcount.pid"
+}
+
+rc_reload() {
+  ${rcexec} "${daemon} --reload /var/run/headcount.pid"
 }
 
 rc_cmd $1
