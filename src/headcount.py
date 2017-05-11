@@ -509,7 +509,8 @@ def show_admin_edit_users():
 
 @app.route("/logout")
 def logout():
-    del(session['username'])
+    if 'username' in session.keys():
+        del(session['username'])
     if not app.config["DISABLE_AUTH"]:
         return redirect(url_for("login") + "?slo")
     else:
@@ -542,14 +543,22 @@ def error():
         del(session["last_error"])
     else:
         error_msg = "An unspecified error occurred."
-    return render_template(
-        'error.html',
-        message=error_msg,
-        buttons=[
+    if 'username' in session.keys():
+        buttons = [
+            NavButton(url_for("login") + "?sso", "Log In"),
+            NavButton(url_for("show_main"), "Main"),
+            NavButton(url_for("help"), "Help")
+        ]
+    else:
+        buttons = [
             NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_main"), "Main"),
             NavButton(url_for("help"), "Help")
         ]
+    return render_template(
+        'error.html',
+        message=error_msg,
+        buttons=buttons
     )
 
 
