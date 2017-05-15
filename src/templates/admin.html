@@ -25,9 +25,7 @@
 <a name="admins"></a>
 <div class="header-group">
     <h2>Allowed Administrators</h2>
-    {% if admins|length > 0 %}
     <a href="{{ url_for('show_admin_edit_admins') }}#admins" class="shadow-button">Edit</a>
-    {% endif %}
 </div>
 <div class="username-group-group">
 <div class="username-group">
@@ -41,9 +39,7 @@
 <a name="users"></a>
 <div class="header-group">
     <h2>Allowed Users</h2>
-    {% if users|length > 0 %}
     <a href="{{ url_for('show_admin_edit_users') }}#users">Edit</a>
-    {% endif %}
 </div>
     <div class="username-group-group">
 <div class="username-group">

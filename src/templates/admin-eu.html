@@ -25,9 +25,7 @@
 <a name="admins"></a>
 <div class="header-group">
     <h2>Allowed Administrators</h2>
-    {% if admins|length %}
     <a href="{{ url_for('show_admin_edit_admins') }}#admins">Edit</a>
-    {% endif %}
 </div>
 <div class="username-group-group">
 <div class="username-group">
@@ -42,11 +40,8 @@
 <a name="users"></a>
 <div class="header-group">
     <h2>Allowed Users</h2>
-    {% if users|length > 0 %}
     <a href="{{ url_for('show_admin') }}#users">Done</a>
-    {% endif %}
 </div>
-    {% if users|length > 0 %}
 <div class="button-group">
     <!-- There are newlines in weird places here because some browsers render
     whitespace-only text nodes in between the objects and screw up the spacing on
@@ -57,7 +52,6 @@
     <input type="text" name="new_users" placeholder="Add" class="lozenge left"
     ><button class="green lozenge right" name="add"><span class="icon plus"></span></button>
 </div>
-    {% endif %}
 <div class="username-group-group">
 <div class="username-group">
     {% for user in users %}
