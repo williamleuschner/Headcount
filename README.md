@@ -65,5 +65,7 @@ server "headcount.se.rit.edu" {
 }
 ```
 
+To update installed versions of `pip` packages, switch into the virtualenv 
+and call `pip install --upgrade -r requirements.txt`.
 
 Enjoy!
