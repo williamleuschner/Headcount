@@ -136,7 +136,9 @@ def authenticated(decoratee):
         if "username" in session.keys() and is_user(session['username']):
             return decoratee(*args, **kwargs)
         else:
-            return redirect(url_for("login") + "?sso")
+            session["last_error"] = "You need to be logged in to view this " \
+                                    "page."
+            return redirect(url_for("error"))
     return wrapper
 
 
@@ -375,7 +377,12 @@ def get_csv_logs(how_many_rows: int) -> str:
     counts = db.get_newest_counts(how_many_rows, hc_db.NewestSort.SUBMIT_TIME)
     counts_as_string = ""
     for count in counts:
-        username = db.get_user_by_id(count['user_id'])['username']
+        username = db.get_user_by_id(count['user_id'])
+        # Don't error out when there are headcounts by users who no longer exist
+        if username is None:
+            username = "(Deleted user; ID %s)" % (count['user_id'],)
+        else:
+            username = username['username']
         room_rows = db.get_roomdata_for_count_id(count['id'])
         counts_as_string += username + ","
         counts_as_string += count['submit_time'] + "," + \
