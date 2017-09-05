@@ -526,16 +526,20 @@ def logout():
 
 @app.route("/help")
 def help():
-    if is_admin(session['username']):
+    if 'username' in session.keys() and is_admin(session['username']):
         buttons = [
             NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_main"), "Main"),
             NavButton(url_for("show_admin"), "Administration")
         ]
-    else:
+    elif 'username' in session.keys():
         buttons = [
             NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_main"), "Main"),
+        ]
+    else:
+        buttons = [
+            NavButton(url_for("index"), "Home")
         ]
     return render_template(
         "help.html",
