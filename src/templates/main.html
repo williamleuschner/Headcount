@@ -42,11 +42,12 @@
             {% for room in rooms %}
             <div class="input-group">
                 <span>{{ room.display_name() }}:</span>
-                <input type="number" name="{{ room.name }}">
+                <input type="number" name="{{ room.name }}" class="room-input">
             </div>
             {% endfor %}
         </div>
         <input type="submit" name="submit" value="Submit">
     </form>
 </div>
+<script src="{{ url_for('static', filename='rooms.js') }}"></script>
 {% endblock %}
