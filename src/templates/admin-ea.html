@@ -29,6 +29,8 @@
     <a href="{{ url_for('show_admin') }}#admins">Done</a>
 </div>
 <div class="button-group">
+    <button class="invisible-button" type="submit" name="add"
+            value="default action" />
     <!-- There are newlines in weird places here because some browsers render
     whitespace-only text nodes in between the objects and screw up the spacing on
     the form controls -->
@@ -36,7 +38,8 @@
         <span class="icon trash"></span>
     </button>
     <input type="text" name="new_admins" placeholder="Add" class="lozenge left"
-    ><button class="green lozenge right" name="add"><span class="icon plus"></span></button>
+    ><button class="green lozenge right" name="add"><span
+        class="icon plus"></span></button>
 </div>
 <div class="username-group-group">
     <div class="username-group">

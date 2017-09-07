@@ -209,6 +209,16 @@ form input[type="submit"] {
     z-index: 1000;
 }
 
+.invisible-button {
+    overflow: visible !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+}
+
 .new-count-container {
     display: -webkit-flex;
     display: -ms-flexbox;
