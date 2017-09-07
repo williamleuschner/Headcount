@@ -474,6 +474,8 @@ button.update {
     font-size: 16px;
     width: auto;
     margin-left: 0.5rem;
+    font-family: "San Francisco Text", "SF UI Text",
+        "Helvetica Neue", "Arial", sans-serif;
 }
 
 input[type="text"].lozenge {
