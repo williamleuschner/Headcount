@@ -505,11 +505,11 @@ input[type="text"].lozenge {
 }
 
 .icon.trash {
-    background-image: url(/headcount/static/trash.svg);
+    background-image: url(/static/trash.svg);
 }
 
 .icon.plus {
-    background-image: url(/headcount/static/plus.svg);
+    background-image: url(/static/plus.svg);
 }
 
 .rooms-named path.1688:hover {
