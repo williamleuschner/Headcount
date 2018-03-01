@@ -13,6 +13,7 @@ tokens = (
     "TOKOCCUPANCY",
     "TOKNICK",
     "TOKSVGID",
+    "TOKSORT",
     "INT",
     "STRING",
 )
@@ -26,6 +27,8 @@ t_TOKOCCUPANCY = r"max-occupancy"
 t_TOKNICK = r"nickname"
 
 t_TOKSVGID = r"svg-id"
+
+t_TOKSORT = r"sort"
 
 t_ignore_WHITESPACE = r"[\n \t]+"
 
@@ -69,21 +72,23 @@ with open("headcount.conf", "r") as f:
 class Room(object):
     @staticmethod
     def sortkey(to_sort):
-        return to_sort.name
+        return to_sort.sort
 
-    def __init__(self, name, max_occupancy, svg_id, nickname=""):
+    def __init__(self, name, max_occupancy, svg_id, sort, nickname=""):
         self.name = name
         self.max_occupancy = max_occupancy
         self.svg_id = svg_id
         self.nickname = nickname
+        self.sort = sort
 
     def __repr__(self):
-        return "Room( name=\"%s\", max_occupancy=%s, svg_id=\"%s\", " \
+        return "Room( name=\"%s\", max_occupancy=%d, svg_id=\"%s\", sort=%d" \
                "nickname=\"%s\" )" % (
-            self.name,
-            self.max_occupancy,
-            self.svg_id,
-            self.nickname
+                   self.name,
+                   self.max_occupancy,
+                   self.svg_id,
+                   self.sort,
+                   self.nickname
         )
 
     def display_name(self):
@@ -113,9 +118,10 @@ def p_room_set(p):
 def p_room(p):
     """room : TOKROOMSTART STRING config_group TOKROOMEND"""
     if "nickname" in p[3].keys():
-        p[0] = Room(p[2], p[3]["max-occupancy"], p[3]["svg-id"], nickname=p[3]["nickname"])
+        p[0] = Room(p[2], p[3]["max-occupancy"], p[3]["svg-id"],
+                    p[3]["sort"], nickname=p[3]["nickname"])
     else:
-        p[0] = Room(p[2], p[3]["max-occupancy"], p[3]["svg-id"])
+        p[0] = Room(p[2], p[3]["max-occupancy"], p[3]["svg-id"], p[3]["sort"])
 
 
 def p_config_group(p):
@@ -139,7 +145,8 @@ def p_config_group(p):
 def p_config_phrase(p):
     """config_phrase : TOKOCCUPANCY INT
                      | TOKNICK STRING
-                     | TOKSVGID STRING"""
+                     | TOKSVGID STRING
+                     | TOKSORT INT"""
     # Store the token name and it's value in a tuple
     p[0] = (p[1], p[2])
 

@@ -6,16 +6,21 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'COMMENT INT STRING TOKNICK TOKOCCUPANCY TOKROOMEND TOKROOMSTART TOKSVGIDroom_set : room\n                | room_set roomroom : TOKROOMSTART STRING config_group TOKROOMENDconfig_group : config_phrase\n                    | config_group config_phraseconfig_phrase : TOKOCCUPANCY INT\n                     | TOKNICK STRING\n                     | TOKSVGID STRING'
+_lr_signature = 'COMMENT INT STRING TOKNICK TOKOCCUPANCY TOKROOMEND TOKROOMSTART TOKSORT TOKSVGIDroom_set : room\n                | room_set roomroom : TOKROOMSTART STRING config_group TOKROOMENDconfig_group : config_phrase\n                    | config_group config_phraseconfig_phrase : TOKOCCUPANCY INT\n                     | TOKNICK STRING\n                     | TOKSVGID STRING\n                     | TOKSORT INT'
 
-_lr_action_items = {'STRING': ([1, 6, 7, ], [4, 11, 12, ]), 'TOKSVGID': (
-[4, 8, 10, 11, 12, 13, 15, ], [6, -4, 6, -8, -7, -6, -5, ]),
-                    'TOKROOMSTART': ([0, 2, 3, 5, 14, ], [1, 1, -1, -2, -3, ]),
-                    'INT': ([9, ], [13, ]),
-                    '$end': ([2, 3, 5, 14, ], [0, -1, -2, -3, ]), 'TOKNICK': (
-    [4, 8, 10, 11, 12, 13, 15, ], [7, -4, 7, -8, -7, -6, -5, ]), 'TOKROOMEND': (
-    [8, 10, 11, 12, 13, 15, ], [-4, 14, -8, -7, -6, -5, ]), 'TOKOCCUPANCY': (
-    [4, 8, 10, 11, 12, 13, 15, ], [9, -4, 9, -8, -7, -6, -5, ]), }
+_lr_action_items = {'$end': ([1, 3, 5, 17, ], [-1, 0, -2, -3, ]),
+                    'TOKROOMSTART': ([0, 1, 3, 5, 17, ], [2, -1, 2, -2, -3, ]),
+                    'TOKNICK': ([4, 10, 11, 12, 13, 14, 15, 16, ],
+                                [9, -4, 9, -8, -6, -9, -7, -5, ]),
+                    'TOKOCCUPANCY': ([4, 10, 11, 12, 13, 14, 15, 16, ],
+                                     [7, -4, 7, -8, -6, -9, -7, -5, ]),
+                    'TOKSORT': ([4, 10, 11, 12, 13, 14, 15, 16, ],
+                                [8, -4, 8, -8, -6, -9, -7, -5, ]),
+                    'INT': ([7, 8, ], [13, 14, ]),
+                    'STRING': ([2, 6, 9, ], [4, 12, 15, ]), 'TOKSVGID': (
+    [4, 10, 11, 12, 13, 14, 15, 16, ], [6, -4, 6, -8, -6, -9, -7, -5, ]),
+                    'TOKROOMEND': ([10, 11, 12, 13, 14, 15, 16, ],
+                                   [-4, 17, -8, -6, -9, -7, -5, ]), }
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -24,9 +29,9 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'config_phrase': ([4, 10, ], [8, 15, ]),
-                  'room_set': ([0, ], [2, ]), 'config_group': ([4, ], [10, ]),
-                  'room': ([0, 2, ], [3, 5, ]), }
+_lr_goto_items = {'config_phrase': ([4, 11, ], [10, 16, ]),
+                  'config_group': ([4, ], [11, ]), 'room': ([0, 3, ], [1, 5, ]),
+                  'room_set': ([0, ], [3, ]), }
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -36,20 +41,22 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> room_set","S'",1,None,None,None),
-    ('room_set -> room', 'room_set', 1, 'p_room_set', 'config_lexer.py', 97),
+    ('room_set -> room', 'room_set', 1, 'p_room_set', 'config_lexer.py', 102),
     (
     'room_set -> room_set room', 'room_set', 2, 'p_room_set', 'config_lexer.py',
-    98),
+    103),
     ('room -> TOKROOMSTART STRING config_group TOKROOMEND', 'room', 4, 'p_room',
-     'config_lexer.py', 114),
+     'config_lexer.py', 119),
     ('config_group -> config_phrase', 'config_group', 1, 'p_config_group',
-     'config_lexer.py', 122),
+     'config_lexer.py', 127),
     ('config_group -> config_group config_phrase', 'config_group', 2,
-     'p_config_group', 'config_lexer.py', 123),
+     'p_config_group', 'config_lexer.py', 128),
     ('config_phrase -> TOKOCCUPANCY INT', 'config_phrase', 2, 'p_config_phrase',
-     'config_lexer.py', 140),
+     'config_lexer.py', 145),
     ('config_phrase -> TOKNICK STRING', 'config_phrase', 2, 'p_config_phrase',
-     'config_lexer.py', 141),
+     'config_lexer.py', 146),
     ('config_phrase -> TOKSVGID STRING', 'config_phrase', 2, 'p_config_phrase',
-     'config_lexer.py', 142),
+     'config_lexer.py', 147),
+    ('config_phrase -> TOKSORT INT', 'config_phrase', 2, 'p_config_phrase',
+     'config_lexer.py', 148),
 ]
