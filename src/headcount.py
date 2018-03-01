@@ -5,26 +5,21 @@
 # File Creation Date: 2017-02-01
 # Last Modified Date: 2017-02-21
 
+import datetime
 import os
-
-from flask import Flask, request, render_template, redirect, session, \
-    url_for, g, make_response
-
-import click
-
+import re
+from collections import namedtuple, OrderedDict
+from functools import wraps
 from urllib.parse import urlparse
 
+import click
+from flask import Flask, request, render_template, redirect, session, \
+    url_for, g, make_response
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
-from functools import wraps
-
 import config_lexer
 import hc_db
-import datetime
-import re
-
-from collections import namedtuple, OrderedDict
 
 app = Flask(__name__)
 
@@ -243,6 +238,8 @@ def login():
 
         return redirect(url_for("index"))
     else:
+        print("WARNING: AUTHENTICATION IS DISABLED. IF THIS MESSAGE APPEARS "
+              "IN YOUR PRODUCTION LOGS, SOMETHING IS WRONG.")
         session['username'] = "tstusr"
         session['log_rows'] = 3
         return redirect(url_for('show_main'))
@@ -262,6 +259,20 @@ def metadata():
     else:
         resp = make_response(', '.join(errors), 500)
     return resp
+
+
+def try_strptime(s: str, fmt: str) -> datetime.datetime:
+    """
+    Attempt to parse the string s as a timestamp in the format specified by
+    format.  Returns None if parsing fails.
+    :param s: The time string to parse
+    :param fmt: The format string with which to parse s
+    :return: A datetime, or None if parsing failed.
+    """
+    try:
+        return datetime.datetime.strptime(s, fmt)
+    except ValueError:
+        return None
 
 
 @app.route("/main")
@@ -302,10 +313,11 @@ def show_main():
             rooms=rooms,
             recent_counts=recent_counts,
             datewhen=now.strftime("%Y-%m-%d"),
-            timewhen=now.strftime("%H:%M:%S")
+            timewhen=now.strftime("%H:%M")
         )
     else:
-        # Otherwise, add a new headcount and then redirect to the same page, but
+        # Otherwise, add a new headcount and then redirect to the same page,
+        #  but
         # without arguments
         db = get_db()
         if (
@@ -316,10 +328,19 @@ def show_main():
                                     "associated with them, and the request " \
                                     "you just made didn't."
             return redirect(url_for('error'))
-        provided_time = datetime.datetime.strptime(
+        provided_time = try_strptime(
             request.args['date'] + "T" + request.args['time'],
             "%Y-%m-%dT%H:%M:%S"
         )
+        if provided_time is None:
+            provided_time = try_strptime(
+                request.args['date'] + "T" + request.args['time'],
+                "%Y-%m-%dT%H:%M"
+            )
+        if provided_time is None:
+            session['last_error'] = "The headcount time was formatted " \
+                                    "improperly."
+            return redirect(url_for('error'))
         current_time = datetime.datetime.now()
         # Copy the request arguments
         counts = dict(request.args)

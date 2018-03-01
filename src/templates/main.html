@@ -42,7 +42,8 @@
             {% for room in rooms %}
             <div class="input-group">
                 <span>{{ room.display_name() }}:</span>
-                <input type="number" name="{{ room.name }}" class="room-input">
+                <input type="tel" pattern="[0-9]*" formnovalidate
+                       name="{{ room.name }}" class="room-input">
             </div>
             {% endfor %}
         </div>
