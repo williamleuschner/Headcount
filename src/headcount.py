@@ -41,7 +41,7 @@ app.config['DISABLE_AUTH'] = False
 
 NavButton = namedtuple("NavButton", "location name")
 
-USERNAME_REGEX = re.compile(r"^[a-z]{3}([a-z]{3}|[0-9]{4})$")
+USERNAME_REGEX = re.compile(r"^[a-z]{2,3}([a-z]{3}|[0-9]{4})$")
 
 allowed_row_counts = [3, 5, 10, 30, 100]
 

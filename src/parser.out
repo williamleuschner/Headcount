@@ -1,4 +1,4 @@
-Created by PLY version 3.10 (http://www.dabeaz.com/ply)
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
@@ -44,35 +44,35 @@ state 0
     (2) room_set -> . room_set room
     (3) room -> . TOKROOMSTART STRING config_group TOKROOMEND
 
-    TOKROOMSTART    shift and go to state 2
+    TOKROOMSTART    shift and go to state 1
 
-    room_set                       shift and go to state 3
-    room                           shift and go to state 1
+    room_set                       shift and go to state 2
+    room                           shift and go to state 3
 
 state 1
-
-    (1) room_set -> room .
-
-    TOKROOMSTART    reduce using rule 1 (room_set -> room .)
-    $end            reduce using rule 1 (room_set -> room .)
-
-
-state 2
 
     (3) room -> TOKROOMSTART . STRING config_group TOKROOMEND
 
     STRING          shift and go to state 4
 
 
-state 3
+state 2
 
     (0) S' -> room_set .
     (2) room_set -> room_set . room
     (3) room -> . TOKROOMSTART STRING config_group TOKROOMEND
 
-    TOKROOMSTART    shift and go to state 2
+    TOKROOMSTART    shift and go to state 1
 
     room                           shift and go to state 5
+
+state 3
+
+    (1) room_set -> room .
+
+    TOKROOMSTART    reduce using rule 1 (room_set -> room .)
+    $end            reduce using rule 1 (room_set -> room .)
+
 
 state 4
 
@@ -83,12 +83,12 @@ state 4
     (7) config_phrase -> . TOKNICK STRING
     (8) config_phrase -> . TOKSVGID STRING
 
-    TOKOCCUPANCY    shift and go to state 7
-    TOKNICK         shift and go to state 6
-    TOKSVGID        shift and go to state 8
+    TOKOCCUPANCY    shift and go to state 9
+    TOKNICK         shift and go to state 7
+    TOKSVGID        shift and go to state 6
 
-    config_phrase                  shift and go to state 10
-    config_group                   shift and go to state 9
+    config_phrase                  shift and go to state 8
+    config_group                   shift and go to state 10
 
 state 5
 
@@ -100,41 +100,19 @@ state 5
 
 state 6
 
-    (7) config_phrase -> TOKNICK . STRING
+    (8) config_phrase -> TOKSVGID . STRING
 
     STRING          shift and go to state 11
 
 
 state 7
 
-    (6) config_phrase -> TOKOCCUPANCY . INT
+    (7) config_phrase -> TOKNICK . STRING
 
-    INT             shift and go to state 12
+    STRING          shift and go to state 12
 
 
 state 8
-
-    (8) config_phrase -> TOKSVGID . STRING
-
-    STRING          shift and go to state 13
-
-
-state 9
-
-    (3) room -> TOKROOMSTART STRING config_group . TOKROOMEND
-    (5) config_group -> config_group . config_phrase
-    (6) config_phrase -> . TOKOCCUPANCY INT
-    (7) config_phrase -> . TOKNICK STRING
-    (8) config_phrase -> . TOKSVGID STRING
-
-    TOKROOMEND      shift and go to state 14
-    TOKOCCUPANCY    shift and go to state 7
-    TOKNICK         shift and go to state 6
-    TOKSVGID        shift and go to state 8
-
-    config_phrase                  shift and go to state 15
-
-state 10
 
     (4) config_group -> config_phrase .
 
@@ -144,7 +122,39 @@ state 10
     TOKSVGID        reduce using rule 4 (config_group -> config_phrase .)
 
 
+state 9
+
+    (6) config_phrase -> TOKOCCUPANCY . INT
+
+    INT             shift and go to state 13
+
+
+state 10
+
+    (3) room -> TOKROOMSTART STRING config_group . TOKROOMEND
+    (5) config_group -> config_group . config_phrase
+    (6) config_phrase -> . TOKOCCUPANCY INT
+    (7) config_phrase -> . TOKNICK STRING
+    (8) config_phrase -> . TOKSVGID STRING
+
+    TOKROOMEND      shift and go to state 14
+    TOKOCCUPANCY    shift and go to state 9
+    TOKNICK         shift and go to state 7
+    TOKSVGID        shift and go to state 6
+
+    config_phrase                  shift and go to state 15
+
 state 11
+
+    (8) config_phrase -> TOKSVGID STRING .
+
+    TOKROOMEND      reduce using rule 8 (config_phrase -> TOKSVGID STRING .)
+    TOKOCCUPANCY    reduce using rule 8 (config_phrase -> TOKSVGID STRING .)
+    TOKNICK         reduce using rule 8 (config_phrase -> TOKSVGID STRING .)
+    TOKSVGID        reduce using rule 8 (config_phrase -> TOKSVGID STRING .)
+
+
+state 12
 
     (7) config_phrase -> TOKNICK STRING .
 
@@ -154,7 +164,7 @@ state 11
     TOKSVGID        reduce using rule 7 (config_phrase -> TOKNICK STRING .)
 
 
-state 12
+state 13
 
     (6) config_phrase -> TOKOCCUPANCY INT .
 
@@ -162,16 +172,6 @@ state 12
     TOKOCCUPANCY    reduce using rule 6 (config_phrase -> TOKOCCUPANCY INT .)
     TOKNICK         reduce using rule 6 (config_phrase -> TOKOCCUPANCY INT .)
     TOKSVGID        reduce using rule 6 (config_phrase -> TOKOCCUPANCY INT .)
-
-
-state 13
-
-    (8) config_phrase -> TOKSVGID STRING .
-
-    TOKROOMEND      reduce using rule 8 (config_phrase -> TOKSVGID STRING .)
-    TOKOCCUPANCY    reduce using rule 8 (config_phrase -> TOKSVGID STRING .)
-    TOKNICK         reduce using rule 8 (config_phrase -> TOKSVGID STRING .)
-    TOKSVGID        reduce using rule 8 (config_phrase -> TOKSVGID STRING .)
 
 
 state 14
