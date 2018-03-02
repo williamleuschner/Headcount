@@ -2,23 +2,20 @@
 {% block content %}
 <h2>Recent Headcounts</h2>
 <table class="recent-table">
+    <tbody>
     <tr>
         <th>Date</th>
         {% for room in rooms %}
-        <th>{{ room.display_name() }}</th>
+            <th>{{ room.display_name() }}</th>
         {% endfor %}
     </tr>
-    <tbody>
-    <!-- This gets really ugly for tables with large numbers of columns.
-    TODO: Rewrite so that the times stay in place, but the rest of the table can
-          scroll horizontally (x-overflow: scroll) -->
     {% for count in recent_counts %}
-    <tr>
-        <td>{{ count["date"] }}</td>
-        {% for data in count["counts"].values() %}
-        <td class="numeric-data">{{ data }}</td>
-        {% endfor %}
-    </tr>
+        <tr>
+            <td>{{ count["date"] }}</td>
+            {% for data in count["counts"].values() %}
+                <td class="numeric-data">{{ data }}</td>
+            {% endfor %}
+        </tr>
     {% endfor %}
     </tbody>
 </table>

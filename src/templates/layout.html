@@ -11,11 +11,16 @@
 <body>
     <nav>
         <h1>Headcount</h1>
-        <div class="buttons">
+        <label for="menu-toggle">
+            {% include 'hamburger.svg' %}
+        </label>
+        <input type="checkbox" id="menu-toggle">
+        <ul class="buttons">
             {% for button in buttons %}
-            <a href="{{ button.location }}">{{ button.name }}</a>
+                <li><a href="{{ button.location }}">{{ button.name }}</a></li>
             {% endfor %}
-        </div>
+        </ul>
+        <div class="cover"></div>
     </nav>
     <main>
         {% block content %}{% endblock %}
