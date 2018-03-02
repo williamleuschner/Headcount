@@ -48,6 +48,7 @@ nav label, nav input {
 
 nav .buttons {
     list-style: none;
+    margin: 12px 0 0 auto;
 }
 
 nav .buttons li {
@@ -59,9 +60,13 @@ nav .buttons a {
     color: #24C6DC;
 }
 
-@media (max-width: 500px) {
-    nav h1 {
+@media (max-width: 550px) {
+    h1, nav h1 {
         font-size: 1.3rem;
+    }
+
+    main h2 {
+        font-size: 1.1rem !important;
     }
 
     nav label {
