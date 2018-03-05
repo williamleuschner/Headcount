@@ -3,7 +3,7 @@
 # Classrooms
 # Author: William Leuschner
 # File Creation Date: 2017-02-01
-# Last Modified Date: 2017-02-21
+# Last Modified Date: 2018-03-05
 
 import datetime
 import os
@@ -275,6 +275,11 @@ def try_strptime(s: str, fmt: str) -> datetime.datetime:
         return None
 
 
+def sort_count_data(item):
+    room = app.config["HC_CONFIG"][item[0]]
+    return config_lexer.Room.sortkey(room)
+
+
 @app.route("/main")
 @authenticated
 def show_main():
@@ -294,7 +299,9 @@ def show_main():
             some_dict = {"date": count['entered_time'], "counts": {}}
             for row in room_rows:
                 some_dict["counts"][row['room']] = row['people_count']
-            some_dict['counts'] = OrderedDict(sorted(some_dict['counts'].items()))
+            some_dict['counts'] = OrderedDict(
+                sorted(some_dict['counts'].items(), key=sort_count_data)
+            )
             recent_counts.append(some_dict)
         if is_admin(session['username']):
             buttons = [
