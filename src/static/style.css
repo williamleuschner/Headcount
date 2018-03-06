@@ -71,7 +71,7 @@ nav .buttons a {
 
     nav label {
         display: block;
-        margin: 50% -25px 50% auto;
+        margin: 0.60rem -25px 0.60rem auto;
     }
 
     nav input[type=checkbox] {
@@ -86,7 +86,7 @@ nav .buttons a {
     nav input[type=checkbox]:checked ~ .buttons {
         display: block;
         position: absolute;
-        top: 74px;
+        top: 62px;
         left: 0;
         width: 100%;
         height: 6rem;
@@ -235,11 +235,17 @@ nav .login:hover {
     color: #24C6DC;
 }
 
+/* 660px happens to be the width of the table */
+@media (max-width: 660px) {
+    .recent-table {
+        display: block;
+        overflow-x: scroll;
+    }
+}
+
 .recent-table {
     width: 98%;
     margin: 0 auto;
-    display: block;
-    overflow-x: scroll;
 }
 
 .recent-table th {
@@ -331,19 +337,28 @@ div.col-4 {
 }
 
 .flex-inputs {
-/*
-    display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
-    */
-    -webkit-flex-direction: column;
-        -ms-flex-direction: column;
-            flex-direction: column;
-            /*
-    -webkit-align-items: center;
-        -ms-flex-align: center;
-            align-items: center;
-            */
+    flex-direction: column;
+    align-items: center;
+}
+
+label.steven {
+    height: 32px;
+    margin-bottom: 4px;
+    line-height: 32px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+input[type="checkbox"].steven {
+    height: 32px;
+    width: 32px;
+    float: right;
+    vertical-align: middle;
+}
+
+input[type="checkbox"].steven:checked ~ .flex-inputs {
+    flex-direction: column-reverse;
 }
 
 .input-group {
