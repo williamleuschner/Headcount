@@ -355,6 +355,7 @@ def show_main():
         del(counts['date'])
         del(counts['time'])
         del(counts['submit'])
+        del (counts['reverse-inputs'])
         provided_rooms = set(counts.keys())
         configured_rooms = set([room.name for room in app.config[
             'HC_CONFIG'].values()])

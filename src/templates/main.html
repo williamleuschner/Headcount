@@ -28,15 +28,16 @@
     </div>
     <form class="new-count">
         <label for="reverse-inputs" class="steven">Reverse sort:</label>
-        <input type="checkbox" name="reverse-inputs" class="steven">
+        <input type="checkbox" name="reverse-inputs" class="steven"
+               onclick="toggle_tab_order()" id="reverse-inputs">
         <div class="flex-inputs">
             <div class="input-group">
                 <span>Date:</span>
-                <input type="date" name="date" value="{{ datewhen }}">
+                <input type="date" name="date" value="{{ datewhen }}" id="date">
             </div>
             <div class="input-group">
                 <span>Time:</span>
-                <input type="time" name="time" value="{{ timewhen }}">
+                <input type="time" name="time" value="{{ timewhen }}" id="time">
             </div>
             {% for room in rooms %}
             <div class="input-group">
@@ -50,4 +51,5 @@
     </form>
 </div>
 <script src="{{ url_for('static', filename='rooms.js') }}"></script>
+    <script src="{{ url_for('static', filename='taborderfixer.js') }}"></script>
 {% endblock %}
