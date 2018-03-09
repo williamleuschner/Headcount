@@ -373,6 +373,9 @@ def show_main():
         for key, value in counts.items():
             # Value is actually a list, so just take the last item out of it
             value = value[-1:][0]
+            # Interpret missing values as 0, as per [se.rit.edu #25]
+            if value == '':
+                value = 0
             # If it's not numeric,
             if not value.isdigit():
                 # Mark the key as bad
