@@ -10,6 +10,7 @@ import os
 import re
 from collections import namedtuple, OrderedDict
 from functools import wraps
+from sqlite3 import IntegrityError
 from urllib.parse import urlparse
 
 import click
@@ -90,12 +91,15 @@ def initdb_command():
 @click.argument("username")
 def add_admin_command(username):
     """Set the given username as an administrator in the database"""
-    if add_user([username, ], True):
-        print("Successfully added %s as an administrator." % (username,))
-    else:
-        print("Failed to add %s as an administrator. Have you run the initdb "
-              "command? Are you sure that string fits the RIT username "
-              "format?" % (username, ))
+    try:
+        if add_user([username, ], True):
+            print("Successfully added %s as an administrator." % (username,))
+        else:
+            print("Failed to add %s as an administrator. Have you run the "
+                  "initdb command? Are you sure that string fits the RIT "
+                  "username format?" % (username,))
+    except IntegrityError:
+        print("%s is already an administrator. No action taken." % (username,))
 
 
 def validate_username(test_string: str) -> bool:
