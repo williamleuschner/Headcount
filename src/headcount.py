@@ -8,6 +8,7 @@
 import datetime
 import os
 import re
+import sys
 from collections import namedtuple, OrderedDict
 from functools import wraps
 from sqlite3 import IntegrityError
@@ -100,6 +101,7 @@ def add_admin_command(username):
                   "username format?" % (username,))
     except IntegrityError:
         print("%s is already an administrator. No action taken." % (username,))
+        sys.exit(2)
 
 
 def validate_username(test_string: str) -> bool:
