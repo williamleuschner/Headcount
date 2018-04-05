@@ -620,7 +620,6 @@ def error():
 
 def main():
     app.config["HC_CONFIG"] = config_lexer.read_configuration()
-    app.run(debug=True)
 
 
 main()
