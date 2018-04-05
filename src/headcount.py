@@ -622,4 +622,10 @@ def main():
     app.config["HC_CONFIG"] = config_lexer.read_configuration()
 
 
+def main_dbg():
+    app.config["HC_CONFIG"] = config_lexer.read_configuration()
+    app.run(debug=True)
+
+
 main()
+# main_dbg()

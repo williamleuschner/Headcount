@@ -19,4 +19,5 @@ function toggle_tab_order() {
     }
 }
 
-document.getElementById("reverse-inputs").onclick = toggle_tab_order;
+document.getElementById("reverse-inputs").addEventListener(
+    'click', toggle_tab_order);
