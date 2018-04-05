@@ -39,7 +39,7 @@ app.secret_key = os.environ["HEADCOUNT_SECRET_KEY"]
 #   SET TO FALSE IN PRODUCTION  #
 #   I think it's obvious why.   #
 #################################
-app.config['DISABLE_AUTH'] = True
+app.config['DISABLE_AUTH'] = False
 
 NavButton = namedtuple("NavButton", "location name")
 
@@ -132,6 +132,7 @@ def is_user(username: str) -> bool:
 
 def authenticated(decoratee):
     """Decorator to check whether the user is authenticated"""
+
     @wraps(decoratee)
     def wrapper(*args, **kwargs):
         if "username" in session.keys() and is_user(session['username']):
@@ -140,12 +141,14 @@ def authenticated(decoratee):
             session["last_error"] = "You need to be logged in to view this " \
                                     "page."
             return redirect(url_for("error"))
+
     return wrapper
 
 
 def admin_authenticated(decoratee):
     """Decorator to check whether the user is authenticated and an 
     administrator"""
+
     @wraps(decoratee)
     def wrapper(*args, **kwargs):
         if "username" in session.keys():
@@ -157,6 +160,7 @@ def admin_authenticated(decoratee):
                 return redirect(url_for("error"))
         else:
             return redirect(url_for("login") + "?sso")
+
     return wrapper
 
 
@@ -184,8 +188,8 @@ def index():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # req = prepare_flask_request(request)
-    # auth = init_saml_auth(req)
+    req = prepare_flask_request(request)
+    auth = init_saml_auth(req)
     errors = []
     success_slo = False
 
@@ -197,7 +201,7 @@ def login():
             name_id = session['samlNameId'] if 'samlNameId' in session \
                 else None
             session_index = session['samlSessionIndex'] if 'samlSessionIndex' \
-                in session else None
+                                                           in session else None
             return redirect(
                 auth.logout(name_id=name_id, session_index=session_index))
         elif 'acs' in request.args:
@@ -222,13 +226,13 @@ def login():
                     return redirect(url_for("error"))
                 self_url = OneLogin_Saml2_Utils.get_self_url(req)
                 if (
-                                'RelayState' in request.form and
-                                self_url != request.form['RelayState']
+                        'RelayState' in request.form and
+                        self_url != request.form['RelayState']
                 ):
                     return redirect(
                         auth.redirect_to(request.form['RelayState']))
             else:
-                session["last_error"] = "There was an error while handling the"\
+                session["last_error"] = "There was an error while handling the" \
                                         " SAML response: " + str(
                     auth.get_last_error_reason())
                 return redirect(url_for("error"))
@@ -311,10 +315,10 @@ def show_main():
             recent_counts.append(some_dict)
         if is_admin(session['username']):
             buttons = [
-                        NavButton(url_for("show_admin"), "Administration"),
-                        NavButton(url_for("help"), "Help"),
-                        NavButton(url_for("logout"), "Log Out")
-                    ]
+                NavButton(url_for("show_admin"), "Administration"),
+                NavButton(url_for("help"), "Help"),
+                NavButton(url_for("logout"), "Log Out")
+            ]
         else:
             buttons = [
                 NavButton(url_for("help"), "Help"),
@@ -336,7 +340,7 @@ def show_main():
         if (
                 request.args.get("date") is None or
                 request.args.get("time") is None
-           ):
+        ):
             session["last_error"] = "Submitted headcounts must have a time " \
                                     "associated with them, and the request " \
                                     "you just made didn't."
@@ -358,9 +362,9 @@ def show_main():
         # Copy the request arguments
         counts = dict(request.args)
         # Delete the ones that I don't need
-        del(counts['date'])
-        del(counts['time'])
-        del(counts['submit'])
+        del (counts['date'])
+        del (counts['time'])
+        del (counts['submit'])
         if 'reverse-inputs' in counts.keys():
             del (counts['reverse-inputs'])
         provided_rooms = set(counts.keys())
@@ -369,8 +373,8 @@ def show_main():
         if provided_rooms != configured_rooms:
             extraneous = provided_rooms - configured_rooms
             missing = configured_rooms - provided_rooms
-            session['last_error'] = "You provided extraneous rooms %s and did "\
-                                    "not include required rooms %s." %\
+            session['last_error'] = "You provided extraneous rooms %s and did " \
+                                    "not include required rooms %s." % \
                                     (extraneous, missing)
             return redirect(url_for("error"))
         badkeys = []
@@ -382,7 +386,9 @@ def show_main():
             value = value[-1:][0]
             # Interpret missing values as 0, as per [se.rit.edu #25]
             if value == '':
-                value = 0
+                value = '0'
+                # Update the dictionary, fixes [se.rit.edu #95]
+                counts[key] = [value]
             # If it's not numeric,
             if not value.isdigit():
                 # Mark the key as bad
@@ -514,7 +520,7 @@ def user_management_handler(template: str, redir_page: str,
                     if not is_admin(user):
                         db.del_user(user)
                     else:
-                        session["last_error"] = "%s is not an administrator." %\
+                        session["last_error"] = "%s is not an administrator." % \
                                                 (user,)
             else:
                 # If it wasn't a valid username or the user wasn't in the
@@ -556,7 +562,7 @@ def show_admin_edit_users():
 @app.route("/logout")
 def logout():
     if 'username' in session.keys():
-        del(session['username'])
+        del (session['username'])
     if not app.config["DISABLE_AUTH"]:
         return redirect(url_for("login") + "?slo")
     else:
@@ -590,7 +596,7 @@ def help():
 def error():
     if "last_error" in session.keys():
         error_msg = session["last_error"]
-        del(session["last_error"])
+        del (session["last_error"])
     else:
         error_msg = "An unspecified error occurred."
     if 'username' in session.keys():
@@ -614,5 +620,7 @@ def error():
 
 def main():
     app.config["HC_CONFIG"] = config_lexer.read_configuration()
+    app.run(debug=True)
+
 
 main()
