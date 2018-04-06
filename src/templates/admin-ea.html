@@ -2,7 +2,7 @@
 {% block content %}
     <div class="header-group">
         <h2>Logs</h2>
-        <form>
+        <form method="post">
             <select name="rows">
                 {% macro rows_option(number) -%}
                     {% if log_rows == number %}
@@ -25,7 +25,7 @@
         </form>
     </div>
     <textarea readonly="true">{{ logs }}</textarea>
-    <form>
+    <form method="post">
         <a name="admins"></a>
         <div class="header-group">
             <h2>Allowed Administrators</h2>

@@ -314,12 +314,12 @@ def show_main():
     if is_admin(session['username']):
         buttons = [
             NavButton(url_for("show_admin"), "Administration"),
-            NavButton(url_for("help"), "Help"),
+            NavButton(url_for("show_help"), "Help"),
             NavButton(url_for("logout"), "Log Out")
         ]
     else:
         buttons = [
-            NavButton(url_for("help"), "Help"),
+            NavButton(url_for("show_help"), "Help"),
             NavButton(url_for("logout"), "Log Out")
         ]
     return render_template(
@@ -453,7 +453,7 @@ def render_admin_page(template_name: str):
         log_rows=int(session['log_rows']),
         buttons=[
             NavButton(url_for("show_main"), "Main"),
-            NavButton(url_for("help"), "Help"),
+            NavButton(url_for("show_help"), "Help"),
             NavButton(url_for("logout"), "Log Out"),
         ],
     )
@@ -477,39 +477,43 @@ def avoid_lockouts():
     return True
 
 
-def user_management_handler(template: str, redir_page: str,
-                            new_users_field_name: str, admins: bool):
+def user_management_handler(redir_page: str, new_users_field_name: str,
+                            admins: bool):
     """The two admin editing pages are basically the same, except for some
-    slightly different variable names. So, I rolled them into this function."""
+    slightly different variable names. So, I rolled them into this function.
+    :param redir_page: The page to redirect to upon success
+    :param new_users_field_name: The name of the field containing new users
+    :param admins: Are we adding/deleting administrators?
+    """
+    # If necessary, update the row counts for the plain-text log viewer
+    do_update_rows = request.form.get("update-rows")
+    new_rows = request.form.get("rows")
+    if do_update_rows is not None and new_rows is not None and new_rows in \
+            allowed_row_counts:
+        session['log_rows'] = new_rows
     # Get a DB connection
     db = get_db()
     # The arguments should have a key "add" if the user clicked the "+" button
-    if request.args.get("add") is not None:
+    if request.form.get("add") is not None:
         # In a well-formatted request, this is a comma-separated list
-        new_users = request.args.get(new_users_field_name)
-        # Split into a list
+        new_users = request.form.get(new_users_field_name)
         new_users_l = new_users.split(",")
-        # Add all of those users
         add_user(new_users_l, admins)
-        # Strip all of the request stuff off of the url
         return redirect(url_for(redir_page))
-    elif request.args.get('delete') is not None:
+    elif request.form.get('delete') is not None:
         # The arguments should have a key "delete" if the user clicked the
         # trash bin
         # Copy the request, since we need to make changes
-        args_copy = dict(request.args)
+        args_copy = dict(request.form)
         # Delete this key, since we don't need it
         del args_copy["delete"]
         # If the request also has a new_admins key, delete that too
         if new_users_field_name in args_copy.keys():
             del args_copy[new_users_field_name]
-        # For all of the remaining keys,
         for user in args_copy.keys():
-            # If it is a valid username and that user is in the database
             if validate_username(user) and db.does_user_exist(user):
-                # If we're deleting administrators,
+                # If we're deleting admins, avoid locking everybody out
                 if admins:
-                    # Avoid locking everybody out
                     if avoid_lockouts() and is_admin(user):
                         db.del_user(user)
                     else:
@@ -531,31 +535,30 @@ def user_management_handler(template: str, redir_page: str,
                 # Redirect to the error page
                 return redirect(url_for('error'))
         return redirect(url_for(redir_page))
-    else:
-        return render_admin_page(template)
 
 
-@app.route("/admin/edit-admins")
+@app.route("/admin/edit-admins", methods=['GET'])
 @admin_authenticated
 def show_admin_edit_admins():
-    do_update_rows = request.args.get("update-rows")
-    new_rows = request.args.get("rows")
-    if do_update_rows is not None and new_rows is not None and new_rows in \
-            allowed_row_counts:
-        session['log_rows'] = new_rows
-    return user_management_handler("admin-ea.html", "show_admin_edit_admins",
-                                   "new_admins", True)
+    return render_admin_page("admin-ea.html")
 
 
-@app.route("/admin/edit-users")
+@app.route("/admin/edit-admins", methods=['POST'])
+@admin_authenticated
+def admin_edit_admins():
+    return user_management_handler("show_admin_edit_admins", "new_admins", True)
+
+
+@app.route("/admin/edit-users", methods=['GET'])
 @admin_authenticated
 def show_admin_edit_users():
-    do_update_rows = request.args.get("update-rows")
-    new_rows = request.args.get("rows")
-    if do_update_rows is not None and new_rows is not None:
-        session['log_rows'] = new_rows
-    return user_management_handler("admin-eu.html", "show_admin_edit_users",
-                                   "new_users", False)
+    return render_admin_page("admin-eu.html")
+
+
+@app.route("/admin/edit-users", methods=['POST'])
+@admin_authenticated
+def admin_edit_users():
+    return user_management_handler("show_admin_edit_users", "new_users", False)
 
 
 @app.route("/logout")
@@ -602,13 +605,13 @@ def error():
         buttons = [
             NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_main"), "Main"),
-            NavButton(url_for("help"), "Help")
+            NavButton(url_for("show_help"), "Help")
         ]
     else:
         buttons = [
             NavButton(url_for("login") + "?sso", "Log In"),
             NavButton(url_for("show_main"), "Main"),
-            NavButton(url_for("help"), "Help")
+            NavButton(url_for("show_help"), "Help")
         ]
     return render_template(
         'error.html',

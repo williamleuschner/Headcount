@@ -2,7 +2,7 @@
 {% block content %}
     <div class="header-group">
         <h2>Logs</h2>
-        <form>
+        <form method="post">
             <select name="rows">
                 {% macro rows_option(number) -%}
                     {% if log_rows == number %}
@@ -40,7 +40,7 @@
             {% endfor %}
         </div>
     </div>
-    <form>
+    <form method="post">
         <a name="users"></a>
         <div class="header-group">
             <h2>Allowed Users</h2>
