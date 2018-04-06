@@ -569,7 +569,7 @@ def logout():
 
 
 @app.route("/help")
-def help():
+def show_help():
     if 'username' in session.keys() and is_admin(session['username']):
         buttons = [
             NavButton(url_for("logout"), "Log Out"),
@@ -600,13 +600,13 @@ def error():
         error_msg = "An unspecified error occurred."
     if 'username' in session.keys():
         buttons = [
-            NavButton(url_for("login") + "?sso", "Log In"),
+            NavButton(url_for("logout"), "Log Out"),
             NavButton(url_for("show_main"), "Main"),
             NavButton(url_for("help"), "Help")
         ]
     else:
         buttons = [
-            NavButton(url_for("logout"), "Log Out"),
+            NavButton(url_for("login") + "?sso", "Log In"),
             NavButton(url_for("show_main"), "Main"),
             NavButton(url_for("help"), "Help")
         ]
