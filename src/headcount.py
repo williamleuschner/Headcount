@@ -188,12 +188,12 @@ def index():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    req = prepare_flask_request(request)
-    auth = init_saml_auth(req)
-    errors = []
-    success_slo = False
-
     if not app.config['DISABLE_AUTH']:
+        req = prepare_flask_request(request)
+        auth = init_saml_auth(req)
+        errors = []
+        success_slo = False
+
         if 'sso' in request.args:
             return_to = '%smain' % request.host_url
             return redirect(auth.login(return_to=return_to))
@@ -293,127 +293,126 @@ def sort_count_data(item):
 @app.route("/main")
 @authenticated
 def show_main():
-    # If there is no submit argument, just render the page
-    if request.args.get("submit", "") == "":
-        db = get_db()
-        now = datetime.datetime.now()
-        rooms = [room for room in app.config["HC_CONFIG"].values()]
-        rooms.sort(key=config_lexer.Room.sortkey)
-        # Get the three newest counts from the database, sorted by the
-        # user-provided time
-        newest_counts = db.get_newest_counts(3, hc_db.NewestSort.ENTERED_TIME)
-        recent_counts = []
-        for count in newest_counts:
-            room_rows = db.get_roomdata_for_count_id(count['id'])
-            # I couldn't think of a short, descriptive name for this variable.
-            some_dict = {"date": count['entered_time'], "counts": {}}
-            for row in room_rows:
-                some_dict["counts"][row['room']] = row['people_count']
-            some_dict['counts'] = OrderedDict(
-                sorted(some_dict['counts'].items(), key=sort_count_data)
-            )
-            recent_counts.append(some_dict)
-        if is_admin(session['username']):
-            buttons = [
-                NavButton(url_for("show_admin"), "Administration"),
-                NavButton(url_for("help"), "Help"),
-                NavButton(url_for("logout"), "Log Out")
-            ]
-        else:
-            buttons = [
-                NavButton(url_for("help"), "Help"),
-                NavButton(url_for("logout"), "Log Out")
-            ]
-        return render_template(
-            "main.html",
-            buttons=buttons,
-            rooms=rooms,
-            recent_counts=recent_counts,
-            datewhen=now.strftime("%Y-%m-%d"),
-            timewhen=now.strftime("%H:%M")
+    db = get_db()
+    now = datetime.datetime.now()
+    rooms = [room for room in app.config["HC_CONFIG"].values()]
+    rooms.sort(key=config_lexer.Room.sortkey)
+    # Get the three newest counts from the database, sorted by the
+    # user-provided time
+    newest_counts = db.get_newest_counts(3, hc_db.NewestSort.ENTERED_TIME)
+    recent_counts = []
+    for count in newest_counts:
+        room_rows = db.get_roomdata_for_count_id(count['id'])
+        # I couldn't think of a short, descriptive name for this variable.
+        some_dict = {"date": count['entered_time'], "counts": {}}
+        for row in room_rows:
+            some_dict["counts"][row['room']] = row['people_count']
+        some_dict['counts'] = OrderedDict(
+            sorted(some_dict['counts'].items(), key=sort_count_data)
         )
+        recent_counts.append(some_dict)
+    if is_admin(session['username']):
+        buttons = [
+            NavButton(url_for("show_admin"), "Administration"),
+            NavButton(url_for("help"), "Help"),
+            NavButton(url_for("logout"), "Log Out")
+        ]
     else:
-        # Otherwise, add a new headcount and then redirect to the same page,
-        #  but
-        # without arguments
-        db = get_db()
-        if (
-                request.args.get("date") is None or
-                request.args.get("time") is None
-        ):
-            session["last_error"] = "Submitted headcounts must have a time " \
-                                    "associated with them, and the request " \
-                                    "you just made didn't."
-            return redirect(url_for('error'))
+        buttons = [
+            NavButton(url_for("help"), "Help"),
+            NavButton(url_for("logout"), "Log Out")
+        ]
+    return render_template(
+        "main.html",
+        buttons=buttons,
+        rooms=rooms,
+        recent_counts=recent_counts,
+        datewhen=now.strftime("%Y-%m-%d"),
+        timewhen=now.strftime("%H:%M")
+    )
+
+
+@app.route("/submit", methods=['POST'])
+@authenticated
+def submit_headcount():
+    db = get_db()
+    if (
+            request.form.get("date") is None or
+            request.form.get("time") is None
+    ):
+        session["last_error"] = "Submitted headcounts must have a time " \
+                                "associated with them, and the request " \
+                                "you just made didn't."
+        return redirect(url_for('error'))
+    provided_time = try_strptime(
+        request.form['date'] + "T" + request.form['time'],
+        "%Y-%m-%dT%H:%M:%S"
+    )
+    if provided_time is None:
         provided_time = try_strptime(
-            request.args['date'] + "T" + request.args['time'],
-            "%Y-%m-%dT%H:%M:%S"
+            request.form['date'] + "T" + request.form['time'],
+            "%Y-%m-%dT%H:%M"
         )
-        if provided_time is None:
-            provided_time = try_strptime(
-                request.args['date'] + "T" + request.args['time'],
-                "%Y-%m-%dT%H:%M"
-            )
-        if provided_time is None:
-            session['last_error'] = "The headcount time was formatted " \
-                                    "improperly."
-            return redirect(url_for('error'))
-        current_time = datetime.datetime.now()
-        # Copy the request arguments
-        counts = dict(request.args)
-        # Delete the ones that I don't need
-        del (counts['date'])
-        del (counts['time'])
-        del (counts['submit'])
-        if 'reverse-inputs' in counts.keys():
-            del (counts['reverse-inputs'])
-        provided_rooms = set(counts.keys())
-        configured_rooms = set([room.name for room in app.config[
-            'HC_CONFIG'].values()])
-        if provided_rooms != configured_rooms:
-            extraneous = provided_rooms - configured_rooms
-            missing = configured_rooms - provided_rooms
-            session['last_error'] = "You provided extraneous rooms %s and did " \
-                                    "not include required rooms %s." % \
-                                    (extraneous, missing)
-            return redirect(url_for("error"))
-        badkeys = []
-        oversizekeys = []
-        print(counts)
-        # Loop over all of the provided rooms
-        for key, value in counts.items():
-            # Value is actually a list, so just take the last item out of it
-            value = value[-1:][0]
-            # Interpret missing values as 0, as per [se.rit.edu #25]
-            if value == '':
-                value = '0'
-                # Update the dictionary, fixes [se.rit.edu #95]
-                counts[key] = [value]
-            # If it's not numeric,
-            if not value.isdigit():
-                # Mark the key as bad
-                badkeys.append(key)
-            elif int(value) > app.config['HC_CONFIG'][key].max_occupancy:
-                # If the value is larger than the value configured in the
-                # config file, mark the key as too big
-                oversizekeys.append(key)
-        # If the length of the badkeys list is non-zero, throw back an error
-        if len(badkeys) > 0:
-            session['last_error'] = "Your request had non-numeric values for " \
-                                    "these rooms: " + str(badkeys)
-            return redirect(url_for("error"))
-        # If the length of the oversize keys list is non-zero, throw back an
-        # error
-        if len(oversizekeys) > 0:
-            session['last_error'] = "The application isn't configured to " \
-                                    "allow that many people in these rooms: " \
-                                    "%s" % (str(oversizekeys),)
-            return redirect(url_for("error"))
-        # Get the requesting user from the database
-        user = db.get_user_by_name(session['username'])
-        # Give those arguments to the database
-        db.add_headcount(user['id'], current_time, provided_time, counts)
-        return redirect(url_for('show_main'))
+    if provided_time is None:
+        session['last_error'] = "The headcount time was formatted " \
+                                "improperly."
+        return redirect(url_for('error'))
+    current_time = datetime.datetime.now()
+    # Copy the request arguments
+    counts = dict(request.form)
+    # Delete the ones that I don't need
+    del (counts['date'])
+    del (counts['time'])
+    del (counts['submit'])
+    if 'reverse-inputs' in counts.keys():
+        del (counts['reverse-inputs'])
+    provided_rooms = set(counts.keys())
+    configured_rooms = set([room.name for room in app.config[
+        'HC_CONFIG'].values()])
+    if provided_rooms != configured_rooms:
+        extraneous = provided_rooms - configured_rooms
+        missing = configured_rooms - provided_rooms
+        session['last_error'] = "You provided extraneous rooms %s and did " \
+                                "not include required rooms %s." % \
+                                (extraneous, missing)
+        return redirect(url_for("error"))
+    badkeys = []
+    oversizekeys = []
+    print(counts)
+    # Loop over all of the provided rooms
+    for key, value in counts.items():
+        # Value is actually a list, so just take the last item out of it
+        value = value[-1:][0]
+        # Interpret missing values as 0, as per [se.rit.edu #25]
+        if value == '':
+            value = '0'
+            # Update the dictionary, fixes [se.rit.edu #95]
+            counts[key] = [value]
+        # If it's not numeric,
+        if not value.isdigit():
+            # Mark the key as bad
+            badkeys.append(key)
+        elif int(value) > app.config['HC_CONFIG'][key].max_occupancy:
+            # If the value is larger than the value configured in the
+            # config file, mark the key as too big
+            oversizekeys.append(key)
+    # If the length of the badkeys list is non-zero, throw back an error
+    if len(badkeys) > 0:
+        session['last_error'] = "Your request had non-numeric values for " \
+                                "these rooms: " + str(badkeys)
+        return redirect(url_for("error"))
+    # If the length of the oversize keys list is non-zero, throw back an
+    # error
+    if len(oversizekeys) > 0:
+        session['last_error'] = "The application isn't configured to " \
+                                "allow that many people in these rooms: " \
+                                "%s" % (str(oversizekeys),)
+        return redirect(url_for("error"))
+    # Get the requesting user from the database
+    user = db.get_user_by_name(session['username'])
+    # Give those arguments to the database
+    db.add_headcount(user['id'], current_time, provided_time, counts)
+    return redirect(url_for('show_main'))
 
 
 def get_csv_logs(how_many_rows: int) -> str:
