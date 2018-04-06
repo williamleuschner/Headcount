@@ -1,56 +1,58 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>Recent Headcounts</h2>
-<table class="recent-table">
-    <tbody>
-    <tr>
-        <th>Date</th>
-        {% for room in rooms %}
-            <th>{{ room.display_name() }}</th>
-        {% endfor %}
-    </tr>
-    {% for count in recent_counts %}
+    <h2>Recent Headcounts</h2>
+    <table class="recent-table">
+        <tbody>
         <tr>
-            <td>{{ count["date"] }}</td>
-            {% for data in count["counts"].values() %}
-                <td class="numeric-data">{{ data }}</td>
+            <th>Date</th>
+            {% for room in rooms %}
+                <th>{{ room.display_name() }}</th>
             {% endfor %}
         </tr>
-    {% endfor %}
-    </tbody>
-</table>
+        {% for count in recent_counts %}
+            <tr>
+                <td>{{ count["date"] }}</td>
+                {% for data in count["counts"].values() %}
+                    <td class="numeric-data">{{ data }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
-<h2>New Headcount</h2>
-<div class="new-count-container">
-    <div class="diagram-container stack-container">
-        {% include 'rooms.svg' %}
-        {% include 'rooms-named.svg' %}
-    </div>
-    <form class="new-count" action="/submit" method="post">
-        <label for="reverse-inputs" class="steven">Reverse sort:</label>
-        <input type="checkbox" name="reverse-inputs" class="steven"
-               id="reverse-inputs">
-        <div class="flex-inputs">
-            <div class="input-group">
-                <span>Date:</span>
-                <input type="date" name="date" value="{{ datewhen }}" id="date">
-            </div>
-            <div class="input-group">
-                <span>Time:</span>
-                <input type="time" name="time" value="{{ timewhen }}" id="time">
-            </div>
-            {% for room in rooms %}
-            <div class="input-group">
-                <span>{{ room.display_name() }}:</span>
-                <input type="tel" pattern="[0-9]*" formnovalidate
-                       name="{{ room.name }}" class="room-input">
-            </div>
-            {% endfor %}
+    <h2>New Headcount</h2>
+    <div class="new-count-container">
+        <div class="diagram-container stack-container">
+            {% include 'rooms.svg' %}
+            {% include 'rooms-named.svg' %}
         </div>
-        <input type="submit" name="submit" value="Submit">
-    </form>
-</div>
-<script src="{{ url_for('static', filename='rooms.js') }}"></script>
+        <form class="new-count" action="/submit" method="post">
+            <label for="reverse-inputs" class="steven">Reverse sort:</label>
+            <input type="checkbox" name="reverse-inputs" class="steven"
+                   id="reverse-inputs">
+            <div class="flex-inputs">
+                <div class="input-group">
+                    <span>Date:</span>
+                    <input type="date" name="date" value="{{ datewhen }}"
+                           id="date">
+                </div>
+                <div class="input-group">
+                    <span>Time:</span>
+                    <input type="time" name="time" value="{{ timewhen }}"
+                           id="time">
+                </div>
+                {% for room in rooms %}
+                    <div class="input-group">
+                        <span>{{ room.display_name() }}:</span>
+                        <input type="tel" pattern="[0-9]*" formnovalidate
+                               name="{{ room.name }}" class="room-input">
+                    </div>
+                {% endfor %}
+            </div>
+            <input type="submit" name="submit" value="Submit">
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='rooms.js') }}"></script>
     <script src="{{ url_for('static', filename='taborderfixer.js') }}"></script>
     <script src="{{ url_for('static', filename='autoadvance.js') }}"></script>
 {% endblock %}

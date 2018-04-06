@@ -5,25 +5,25 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Headcount</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='reset.css') }}">
-    <link rel="stylesheet" href="{{url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='reset.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <nav>
-        <h1>Headcount</h1>
-        <label for="menu-toggle">
-            {% include 'hamburger.svg' %}
-        </label>
-        <input type="checkbox" id="menu-toggle">
-        <ul class="buttons">
-            {% for button in buttons %}
-                <li><a href="{{ button.location }}">{{ button.name }}</a></li>
-            {% endfor %}
-        </ul>
-        <div class="cover"></div>
-    </nav>
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+<nav>
+    <h1>Headcount</h1>
+    <label for="menu-toggle">
+        {% include 'hamburger.svg' %}
+    </label>
+    <input type="checkbox" id="menu-toggle">
+    <ul class="buttons">
+        {% for button in buttons %}
+            <li><a href="{{ button.location }}">{{ button.name }}</a></li>
+        {% endfor %}
+    </ul>
+    <div class="cover"></div>
+</nav>
+<main>
+    {% block content %}{% endblock %}
+</main>
 </body>
 </html>
