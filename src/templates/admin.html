@@ -2,7 +2,7 @@
 {% block content %}
     <div class="header-group">
         <h2>Logs</h2>
-        <form>
+        <form method="post">
             <select name="rows">
                 {% macro rows_option(number) -%}
                     {% if log_rows == number %}

@@ -68,7 +68,7 @@ def get_db():
     return g.sql_db
 
 
-def add_user(usernames: list, admin: bool) -> bool:
+def add_user(usernames: list, admin: bool):
     """Validate, then add, a new user"""
     db = get_db()
     for name in usernames:
@@ -76,8 +76,6 @@ def add_user(usernames: list, admin: bool) -> bool:
         if validate_username(name):
             # Add it to the database
             db.add_user(name, is_admin=admin)
-            return True
-    return False
 
 
 @app.cli.command("initdb")
@@ -459,14 +457,17 @@ def render_admin_page(template_name: str):
     )
 
 
-@app.route("/admin")
+@app.route("/admin", methods=['GET'])
 @admin_authenticated
 def show_admin():
-    do_update_rows = request.args.get("update-rows")
-    new_rows = request.args.get("rows")
-    if do_update_rows is not None and new_rows is not None:
-        session['log_rows'] = new_rows
     return render_admin_page("admin.html")
+
+
+@app.route("/admin", methods=['POST'])
+@admin_authenticated
+def admin_update_preview():
+    print(repr(request.form))
+    return user_management_handler("show_admin", "", False)
 
 
 def avoid_lockouts():
@@ -485,12 +486,6 @@ def user_management_handler(redir_page: str, new_users_field_name: str,
     :param new_users_field_name: The name of the field containing new users
     :param admins: Are we adding/deleting administrators?
     """
-    # If necessary, update the row counts for the plain-text log viewer
-    do_update_rows = request.form.get("update-rows")
-    new_rows = request.form.get("rows")
-    if do_update_rows is not None and new_rows is not None and new_rows in \
-            allowed_row_counts:
-        session['log_rows'] = new_rows
     # Get a DB connection
     db = get_db()
     # The arguments should have a key "add" if the user clicked the "+" button
@@ -500,6 +495,11 @@ def user_management_handler(redir_page: str, new_users_field_name: str,
         new_users_l = new_users.split(",")
         add_user(new_users_l, admins)
         return redirect(url_for(redir_page))
+    elif request.form.get("update-rows") is not None:
+        # If necessary, update the row counts for the plain-text log viewer
+        new_rows = int(request.form.get("rows"))
+        if new_rows is not None and new_rows in allowed_row_counts:
+            session['log_rows'] = new_rows
     elif request.form.get('delete') is not None:
         # The arguments should have a key "delete" if the user clicked the
         # trash bin
@@ -535,6 +535,7 @@ def user_management_handler(redir_page: str, new_users_field_name: str,
                 # Redirect to the error page
                 return redirect(url_for('error'))
         return redirect(url_for(redir_page))
+    return redirect(url_for(redir_page))
 
 
 @app.route("/admin/edit-admins", methods=['GET'])
