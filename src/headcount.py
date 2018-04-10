@@ -288,7 +288,7 @@ def sort_count_data(item):
     return config_lexer.Room.sortkey(room)
 
 
-@app.route("/main")
+@app.route("/main", methods=['GET'])
 @authenticated
 def show_main():
     db = get_db()
@@ -376,7 +376,6 @@ def submit_headcount():
         return redirect(url_for("error"))
     badkeys = []
     oversizekeys = []
-    print(counts)
     # Loop over all of the provided rooms
     for key, value in counts.items():
         # Value is actually a list, so just take the last item out of it
@@ -466,7 +465,6 @@ def show_admin():
 @app.route("/admin", methods=['POST'])
 @admin_authenticated
 def admin_update_preview():
-    print(repr(request.form))
     return user_management_handler("show_admin", "", False)
 
 

@@ -26,7 +26,8 @@
             {% include 'rooms.svg' %}
             {% include 'rooms-named.svg' %}
         </div>
-        <form class="new-count" action="/submit" method="post">
+        <form class="new-count" action="{{ url_for('submit_headcount') }}"
+              method="post">
             <label for="reverse-inputs" class="steven">Reverse sort:</label>
             <input type="checkbox" name="reverse-inputs" class="steven"
                    id="reverse-inputs">
