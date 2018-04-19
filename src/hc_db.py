@@ -3,7 +3,6 @@
 # "lite", it can be replaced with a more powerful alternative
 # Author: William Leuschner
 # Creation Date: 2017-02-22
-# Last Modified Date: 2017-02-22
 
 import sqlite3
 import datetime
@@ -22,9 +21,15 @@ class HCDB:
     ADD_HEADCOUNT_Q = \
         "INSERT INTO headcounts (user_id, submit_time, entered_time) VALUES " \
         "(?,?,?)"
+    # Modify an existing headcount
+    EDIT_HEADCOUNT_Q = \
+        "UPDATE headcounts SET submit_time=?, entered_time=? WHERE id=?;"
     # Add a room to the headcount
     ADD_HC_ROOMS_Q = \
         "INSERT INTO room_data (room, people_count, count_id) VALUES (?,?,?)"
+    # Edit the number of people in a room
+    EDIT_HC_ROOM_Q = \
+        "UPDATE room_data SET people_count=? WHERE room=? AND count_id=?;"
     # Add a user
     ADD_USER_Q = "INSERT INTO users (username, is_admin) VALUES (?,?)"
     # Get all of a user's data
@@ -104,6 +109,24 @@ class HCDB:
             ]
         )
         self.db.commit()
+
+    def edit_headcount(self, newdata: dict, id: int):
+        """Modify the data for the headcount with the specified ID using the
+        data in newdata. newdata must have the following structure:
+            {
+                "submit_time": "2018-04-19 12:26:00",
+                "entered_time": "2018-04-19 13:00:00",
+                "rooms": {
+                    "1564": 1,
+                    ...
+                }
+            }
+        :param newdata: The new data for the headcount
+        :param id: The ID of the headcount to modify"""
+        self._execute(HCDB.EDIT_HC_ROOM_Q, (newdata['submit_time'], newdata[
+            'entered_time'], id))
+        for room, people in newdata['rooms'].iteritems():
+            self._execute(HCDB.EDIT_HC_ROOM_Q, (people, room, id))
 
     def add_user(self, username, is_admin=False):
         """Add a new user to the users table"""

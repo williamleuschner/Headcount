@@ -4,6 +4,11 @@
 # Author: William Leuschner
 # File Creation Date: 2017-02-01
 # Last Modified Date: 2018-03-05
+# To Whomever Needs To Maintain This In The Future: Sorry. I've learned a lot
+#  about how to design applications since I wrote this, and it should
+# probably be rewritten. For starters, it's mostly functional, instead of
+# object-oriented. Hopefully that helps you understand some of the,
+# in hindsight, rather braindead architectural decisions.
 
 import datetime
 import os
