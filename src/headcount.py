@@ -417,6 +417,12 @@ def submit_headcount():
     return redirect(url_for('show_main'))
 
 
+@app.route("/main-edit", methods=['GET'])
+@authenticated
+def show_main_edit():
+    pass
+
+
 def get_csv_logs(how_many_rows: int) -> str:
     """Get the logs from the database and convert them into CSV"""
     db = get_db()
