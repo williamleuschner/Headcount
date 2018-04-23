@@ -356,6 +356,10 @@ def submit_headcount():
                                 "improperly."
         return redirect(url_for('error'))
     current_time = datetime.datetime.now()
+    if current_time - provided_time > datetime.timedelta(hours=2):
+        session['last_error'] = "You can't submit a headcount for times more " \
+                                "than two hours in the past."
+        return redirect(url_for('error'))
     # Copy the request arguments
     counts = dict(request.form)
     # Delete the ones that I don't need
