@@ -420,7 +420,47 @@ def submit_headcount():
 @app.route("/main-edit", methods=['GET'])
 @authenticated
 def show_main_edit():
-    pass
+    db = get_db()
+    now = datetime.datetime.now()
+    rooms = [room for room in app.config["HC_CONFIG"].values()]
+    rooms.sort(key=config_lexer.Room.sortkey)
+    # Get the three newest counts from the database, sorted by the
+    # user-provided time
+    newest_counts = db.get_newest_counts_for_user(
+        3,
+        session['username'],
+        hc_db.NewestSort.ENTERED_TIME
+    )
+    recent_counts = []
+    for count in newest_counts:
+        room_rows = db.get_roomdata_for_count_id(count['id'])
+        # I couldn't think of a short, descriptive name for this variable.
+        some_dict = {"date": count['entered_time'], "counts": {}}
+        for row in room_rows:
+            some_dict["counts"][row['room']] = row['people_count']
+        some_dict['counts'] = OrderedDict(
+            sorted(some_dict['counts'].items(), key=sort_count_data)
+        )
+        recent_counts.append(some_dict)
+    if is_admin(session['username']):
+        buttons = [
+            NavButton(url_for("show_admin"), "Administration"),
+            NavButton(url_for("show_help"), "Help"),
+            NavButton(url_for("logout"), "Log Out")
+        ]
+    else:
+        buttons = [
+            NavButton(url_for("show_help"), "Help"),
+            NavButton(url_for("logout"), "Log Out")
+        ]
+    return render_template(
+        "main-edit.html",
+        buttons=buttons,
+        rooms=rooms,
+        recent_counts=recent_counts,
+        datewhen=now.strftime("%Y-%m-%d"),
+        timewhen=now.strftime("%H:%M")
+    )
 
 
 def get_csv_logs(how_many_rows: int) -> str:

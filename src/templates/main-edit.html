@@ -2,7 +2,7 @@
 {% block content %}
     <div class="header-group">
         <h2>Recent Headcounts</h2>
-        <a href="{{ url_for('show_main_edit') }}">Edit</a>
+        <a href="{{ url_for('show_main') }}">Done</a>
     </div>
     <form method="POST">
         <table class="recent-table">
@@ -15,9 +15,15 @@
             </tr>
             {% for count in recent_counts %}
                 <tr>
-                    <td>{{ count["date"] }}</td>
+                    <td>
+                        {% set date, time = count["date"].split(" ") %}
+                        <input type="date" value="{{ date }}" name=""><!--
+                        --><input type="time" value="{{ time }}" name="">
+                    </td>
                     {% for data in count["counts"].values() %}
-                        <td class="numeric-data">{{ data }}</td>
+                        <td class="numeric-data">
+                            <input type="tel" value="{{ data }}">
+                        </td>
                     {% endfor %}
                 </tr>
             {% endfor %}

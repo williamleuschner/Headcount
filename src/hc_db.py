@@ -4,10 +4,10 @@
 # Author: William Leuschner
 # Creation Date: 2017-02-22
 
-import sqlite3
 import datetime
-from typing import Iterable
+import sqlite3
 from enum import Enum
+from typing import Iterable
 
 
 class NewestSort(Enum):
@@ -20,34 +20,38 @@ class HCDB:
     # Add a headcount
     ADD_HEADCOUNT_Q = \
         "INSERT INTO headcounts (user_id, submit_time, entered_time) VALUES " \
-        "(?,?,?)"
+        "(?,?,?);"
     # Modify an existing headcount
     EDIT_HEADCOUNT_Q = \
         "UPDATE headcounts SET submit_time=?, entered_time=? WHERE id=?;"
     # Add a room to the headcount
     ADD_HC_ROOMS_Q = \
-        "INSERT INTO room_data (room, people_count, count_id) VALUES (?,?,?)"
+        "INSERT INTO room_data (room, people_count, count_id) VALUES (?,?,?);"
     # Edit the number of people in a room
     EDIT_HC_ROOM_Q = \
         "UPDATE room_data SET people_count=? WHERE room=? AND count_id=?;"
     # Add a user
-    ADD_USER_Q = "INSERT INTO users (username, is_admin) VALUES (?,?)"
+    ADD_USER_Q = "INSERT INTO users (username, is_admin) VALUES (?,?);"
     # Get all of a user's data
-    GET_USER_Q = "SELECT id, username, is_admin FROM users WHERE username=?"
+    GET_USER_Q = "SELECT id, username, is_admin FROM users WHERE username=?;"
     # Get all of a user's data, by ID
     GET_USER_BY_ID_Q = "SELECT id, username, is_admin FROM users WHERE " \
-                      "id=?"
+                       "id=?;"
     # Select users where is_admin is true or false
-    GET_USER_BY_ADMIN_Q = "SELECT id, username FROM users WHERE is_admin=?"
+    GET_USER_BY_ADMIN_Q = "SELECT id, username FROM users WHERE is_admin=?;"
     # Delete a user by ID
-    DEL_USER_Q = "DELETE FROM users WHERE id=?"
+    DEL_USER_Q = "DELETE FROM users WHERE id=?;"
     # Get the most recent ? headcounts
     NEWEST_COUNTS_Q = "SELECT id, user_id, submit_time, entered_time FROM " \
-                      "headcounts ORDER BY %s DESC LIMIT ?"
+                      "headcounts ORDER BY %s DESC LIMIT ?;"
+    NEWEST_COUNTS_USER_Q = "SELECT h.id, h.user_id, h.submit_time, " \
+                           "h.entered_time FROM headcounts as h, " \
+                           "users as u WHERE h.user_id = u.id AND u.username " \
+                           "= ? ORDER BY %s DESC LIMIT ?;"
     # Get the room data for a given headcount ID
     ROOMDATA_Q = "SELECT id, room, people_count FROM room_data WHERE " \
-                 "count_id=? ORDER BY room"
-    NUMADMINS_Q = "SELECT COUNT(username) FROM users WHERE is_admin=1"
+                 "count_id=? ORDER BY room;"
+    NUMADMINS_Q = "SELECT COUNT(username) FROM users WHERE is_admin=1;"
 
     def __init__(self, filename):
         """Create a new instance of the HCDB connector"""
@@ -149,7 +153,7 @@ class HCDB:
 
     def does_user_exist(self, username):
         """Returns True if that username is in the database, False if not."""
-        return True if len(self._execute(HCDB.GET_USER_Q, (username, ))
+        return True if len(self._execute(HCDB.GET_USER_Q, (username,))
                            .fetchall()) > 0 else False
 
     def get_all_users(self, filter_by_admin: bool):
@@ -169,8 +173,18 @@ class HCDB:
                     ran?"""
         # This only looks like a SQL injection. `sort' is an enum, and both
         # values of the enum are SQL-safe
-        return self._execute(HCDB.NEWEST_COUNTS_Q % (sort.value,), (how_many,
-                                                                    )).fetchall()
+        return self._execute(HCDB.NEWEST_COUNTS_Q % (sort.value,),
+                             (how_many,)).fetchall()
+
+    def get_newest_counts_for_user(self, how_many: int, for_whom: str, sort:
+    NewestSort):
+        """Get n of the most recent headcounts for a specific user.
+        :param how_many How many counts should be retrieved?
+        :param for_whom The username of the user to get counts for.
+        :param sort Sort headcounts by the time the user gave, or the time 
+                    the query ran?"""
+        return self._execute(HCDB.NEWEST_COUNTS_USER_Q % (sort.value,),
+                             (for_whom, how_many)).fetchall()
 
     def get_roomdata_for_count_id(self, count_id: int):
         """Get the per-room headcounts for a given count ID

@@ -601,6 +601,10 @@ input[type="text"].lozenge {
         display: block;
     }
 }
+
+td input[type="tel"] {
+    width: 20px;
+}
 /*
 * {
     background: #000 !important;

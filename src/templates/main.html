@@ -1,6 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h2>Recent Headcounts</h2>
+    <div class="header-group">
+        <h2>Recent Headcounts</h2>
+        <a href="{{ url_for('show_main_edit') }}">Edit</a>
+    </div>
     <table class="recent-table">
         <tbody>
         <tr>
