@@ -5,9 +5,19 @@
         <a href="{{ url_for('show_main') }}">Done</a>
     </div>
     <form method="POST">
+        <div class="button-group">
+            <button class="red" name="delete">
+                <span class="icon trash"></span>
+            </button>
+            <span class="button-space"></span>
+            <button class="green" name="add">
+                <span class="icon save"></span>
+            </button>
+        </div>
         <table class="recent-table">
             <tbody>
             <tr>
+                <th>Delete</th>
                 <th>Date</th>
                 {% for room in rooms %}
                     <th>{{ room.display_name() }}</th>
@@ -15,6 +25,9 @@
             </tr>
             {% for count in recent_counts %}
                 <tr>
+                    <td>
+                        <input type="checkbox" name="">
+                    </td>
                     <td>
                         {% set date, time = count["date"].split(" ") %}
                         <input type="date" value="{{ date }}" name=""><!--

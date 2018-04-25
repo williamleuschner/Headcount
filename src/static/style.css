@@ -513,6 +513,10 @@ input[type="checkbox"] {
     margin: 0 2rem 1rem 2rem;
 }
 
+.button-space {
+    width: 0.25rem;
+}
+
 button {
     display: inline-block;
     padding: 0;
@@ -538,6 +542,7 @@ button.green {
     background-color: #00B950;
     color: #FFF;
     border: 1px solid #008439;
+    border-radius: 4px;
     font-weight: bold;
 }
 
@@ -584,6 +589,10 @@ input[type="text"].lozenge {
 
 .icon.plus {
     background-image: url(/static/plus.svg);
+}
+
+.icon.save {
+    background-image: url(/static/save.svg);
 }
 
 @media all and (max-width: 850px) {
