@@ -25,17 +25,20 @@
             </tr>
             {% for count in recent_counts %}
                 <tr>
-                    <td>
-                        <input type="checkbox" name="">
+                    <td class="checkbox-cell">
+                        <input type="checkbox" name="delete-{{ count['id'] }}">
                     </td>
                     <td>
                         {% set date, time = count["date"].split(" ") %}
-                        <input type="date" value="{{ date }}" name=""><!--
-                        --><input type="time" value="{{ time }}" name="">
+                        <input type="date" value="{{ date }}"
+                               name="date-{{ count['id'] }}"><!-- this comment eats a space
+                        --><input type="time" value="{{ time }}"
+                                  name="time-{{ count['id'] }}">
                     </td>
-                    {% for data in count["counts"].values() %}
+                    {% for room, data in count["counts"].items() %}
                         <td class="numeric-data">
-                            <input type="tel" value="{{ data }}">
+                            <input type="tel" value="{{ data }}"
+                                   name="{{ room }}-{{ count['id'] }}">
                         </td>
                     {% endfor %}
                 </tr>

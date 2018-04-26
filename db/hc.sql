@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS headcounts (
     user_id INTEGER NOT NULL,
     submit_time DATETIME NOT NULL,
     entered_time DATETIME NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users (id)
+        ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS room_data (
     id INTEGER PRIMARY KEY NOT NULL,

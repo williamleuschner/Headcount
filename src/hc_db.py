@@ -24,6 +24,8 @@ class HCDB:
     # Modify an existing headcount
     EDIT_HEADCOUNT_Q = \
         "UPDATE headcounts SET submit_time=?, entered_time=? WHERE id=?;"
+    DELETE_HEADCOUNT_Q = \
+        "DELETE FROM headcounts WHERE id=?;"
     # Add a room to the headcount
     ADD_HC_ROOMS_Q = \
         "INSERT INTO room_data (room, people_count, count_id) VALUES (?,?,?);"
@@ -59,6 +61,8 @@ class HCDB:
         self.db.row_factory = sqlite3.Row
         self.cursor = self.db.cursor()
         self.filename = filename
+        # Why is this turned off on every launch by default? Who knows!
+        self._execute("PRAGMA foreign_keys=ON;")
 
     def __repr__(self) -> str:
         """Turn this HCDB into a semi-meaningful string"""
@@ -131,6 +135,10 @@ class HCDB:
             'entered_time'], id))
         for room, people in newdata['rooms'].iteritems():
             self._execute(HCDB.EDIT_HC_ROOM_Q, (people, room, id))
+
+    def del_headcount(self, count_id: int):
+        self._execute(HCDB.DELETE_HEADCOUNT_Q, (count_id,))
+        self.db.commit()
 
     def add_user(self, username, is_admin=False):
         """Add a new user to the users table"""

@@ -87,7 +87,7 @@ def add_user(usernames: list, admin: bool):
 def initdb_command():
     """Initialize the database"""
     db = get_db()
-    with app.open_resource('../db/hc.schema', mode='r') as f:
+    with app.open_resource('../db/hc.sql', mode='r') as f:
         db.initialize(f)
 
 
@@ -435,7 +435,8 @@ def show_main_edit():
     for count in newest_counts:
         room_rows = db.get_roomdata_for_count_id(count['id'])
         # I couldn't think of a short, descriptive name for this variable.
-        some_dict = {"date": count['entered_time'], "counts": {}}
+        some_dict = {"id": count['id'], "date": count['entered_time'],
+                     "counts": {}}
         for row in room_rows:
             some_dict["counts"][row['room']] = row['people_count']
         some_dict['counts'] = OrderedDict(
@@ -461,6 +462,46 @@ def show_main_edit():
         datewhen=now.strftime("%Y-%m-%d"),
         timewhen=now.strftime("%H:%M")
     )
+
+
+@app.route("/main-edit", methods=['POST'])
+@authenticated
+def submit_main_edit():
+    db = get_db()
+
+    # are we updating the headcounts or deleting them?
+    if "delete" in request.form.keys():
+        for key in request.form.keys():
+            key_split = key.split("-")
+            if len(key_split) <= 1:
+                continue
+            count_id = key_split[1]
+            try:
+                count_id = int(count_id)
+                db.del_headcount(count_id)
+            except ValueError:
+                continue
+    elif "save" in request.form.keys():
+        updates = []
+        for key, val in request.form.items():
+            update = {"id": -1,
+                      "count": {"submit_time": datetime.datetime.now(),
+                                "entered_time": "",
+                                "rooms": {}
+                                }}
+            key_split = key.split("-")
+            if len(key_split) <= 1:
+                continue
+            count_id = key_split[1]
+            try:
+                count_id = int(count_id)
+            except ValueError:
+                continue
+            # if
+            # update['id'] = count_id
+
+    print(request.form)
+    return redirect(url_for("show_main_edit"))
 
 
 def get_csv_logs(how_many_rows: int) -> str:
