@@ -24,6 +24,8 @@ class HCDB:
     # Modify an existing headcount
     EDIT_HEADCOUNT_Q = \
         "UPDATE headcounts SET submit_time=?, entered_time=? WHERE id=?;"
+    EDIT_HEADCOUNT_TEST_Q = \
+        """SELECT * FROM headcounts WHERE id=?;"""
     DELETE_HEADCOUNT_Q = \
         "DELETE FROM headcounts WHERE id=?;"
     # Add a room to the headcount
@@ -32,6 +34,8 @@ class HCDB:
     # Edit the number of people in a room
     EDIT_HC_ROOM_Q = \
         "UPDATE room_data SET people_count=? WHERE room=? AND count_id=?;"
+    EDIT_HC_ROOM_TEST_Q = \
+        "SELECT * FROM room_data WHERE room=? AND count_id=?;"
     # Add a user
     ADD_USER_Q = "INSERT INTO users (username, is_admin) VALUES (?,?);"
     # Get all of a user's data
@@ -131,10 +135,18 @@ class HCDB:
             }
         :param newdata: The new data for the headcount
         :param id: The ID of the headcount to modify"""
+        self.db.row_factory = lambda cursor, row: tuple(row)
+        self.cursor = self.db.cursor()
+        r = self.cursor.execute(HCDB.EDIT_HEADCOUNT_TEST_Q, (id,))
+        print(r.fetchall())
         self._execute(HCDB.EDIT_HC_ROOM_Q, (newdata['submit_time'], newdata[
             'entered_time'], id))
-        for room, people in newdata['rooms'].iteritems():
+        for room, people in newdata['rooms'].items():
+            r = self.cursor.execute(HCDB.EDIT_HC_ROOM_TEST_Q, (room, id))
+            print(r.fetchall())
             self._execute(HCDB.EDIT_HC_ROOM_Q, (people, room, id))
+        self.db.row_factory = sqlite3.Row
+        self.cursor = self.db.cursor()
 
     def del_headcount(self, count_id: int):
         self._execute(HCDB.DELETE_HEADCOUNT_Q, (count_id,))

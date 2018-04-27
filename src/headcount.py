@@ -482,25 +482,47 @@ def submit_main_edit():
             except ValueError:
                 continue
     elif "save" in request.form.keys():
-        updates = []
+        updates = {}
         for key, val in request.form.items():
-            update = {"id": -1,
-                      "count": {"submit_time": datetime.datetime.now(),
-                                "entered_time": "",
-                                "rooms": {}
-                                }}
             key_split = key.split("-")
             if len(key_split) <= 1:
                 continue
             count_id = key_split[1]
             try:
                 count_id = int(count_id)
+                if count_id not in updates.keys():
+                    updates[count_id] = {
+                        "submit_time": datetime.datetime.now(),
+                        "entered_date": "",
+                        "entered_time": "",
+                        "rooms": {}
+                    }
+                if key_split[0] == "date":
+                    updates[count_id]["entered_date"] = val
+                elif key_split[0] == "time":
+                    updates[count_id]["entered_time"] = val
+                else:
+                    updates[count_id]["rooms"][key_split[0]] = int(val)
             except ValueError:
                 continue
-            # if
-            # update['id'] = count_id
-
-    print(request.form)
+        for key in updates.keys():
+            t = try_strptime(
+                updates[key]["entered_date"] + "T" +
+                updates[key]["entered_time"],
+                "%Y-%m-%dT%H:%M:%S"
+            )
+            if t is None:
+                provided_time = try_strptime(
+                    updates[key]["entered_date"] + "T" +
+                    updates[key]["entered_time"],
+                    "%Y-%m-%dT%H:%M"
+                )
+            if t is None:
+                session['last_error'] = "The headcount time was formatted " \
+                                        "improperly."
+                return redirect(url_for('error'))
+            updates[key]["entered_time"] = t
+            db.edit_headcount(updates[key], key)
     return redirect(url_for("show_main_edit"))
 
 
@@ -720,5 +742,5 @@ def main_dbg():
     app.run(debug=True)
 
 
-main()
-# main_dbg()
+# main()
+main_dbg()
