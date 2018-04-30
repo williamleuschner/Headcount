@@ -44,7 +44,7 @@ app.secret_key = os.environ["HEADCOUNT_SECRET_KEY"]
 #   SET TO FALSE IN PRODUCTION  #
 #   I think it's obvious why.   #
 #################################
-app.config['DISABLE_AUTH'] = True
+app.config['DISABLE_AUTH'] = False
 
 NavButton = namedtuple("NavButton", "location name")
 
@@ -473,11 +473,18 @@ def submit_main_edit():
     if "delete" in request.form.keys():
         for key in request.form.keys():
             key_split = key.split("-")
-            if len(key_split) <= 1:
+            if len(key_split) < 2:
+                continue
+            if key_split[0] != "delete":
+                continue
+            if request.form.get(key) != "on":
                 continue
             count_id = key_split[1]
             try:
                 count_id = int(count_id)
+                if not db.can_modify(session['username'], count_id):
+                    session['last_error'] = "You cannot delete that headcount."
+                    return redirect(url_for("error"))
                 db.del_headcount(count_id)
             except ValueError:
                 continue
@@ -506,6 +513,9 @@ def submit_main_edit():
             except ValueError:
                 continue
         for key in updates.keys():
+            if not db.can_modify(session['username'], key):
+                session["last_error"] = "You cannot edit that headcount."
+                return redirect(url_for("error"))
             t = try_strptime(
                 updates[key]["entered_date"] + "T" +
                 updates[key]["entered_time"],
@@ -742,5 +752,5 @@ def main_dbg():
     app.run(debug=True)
 
 
-# main()
-main_dbg()
+main()
+# main_dbg()

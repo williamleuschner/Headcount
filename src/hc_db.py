@@ -24,8 +24,6 @@ class HCDB:
     # Modify an existing headcount
     EDIT_HEADCOUNT_Q = \
         "UPDATE headcounts SET submit_time=?, entered_time=? WHERE id=?;"
-    EDIT_HEADCOUNT_TEST_Q = \
-        """SELECT * FROM headcounts WHERE id=?;"""
     DELETE_HEADCOUNT_Q = \
         "DELETE FROM headcounts WHERE id=?;"
     # Add a room to the headcount
@@ -34,8 +32,9 @@ class HCDB:
     # Edit the number of people in a room
     EDIT_HC_ROOM_Q = \
         "UPDATE room_data SET people_count=? WHERE room=? AND count_id=?;"
-    EDIT_HC_ROOM_TEST_Q = \
-        "SELECT * FROM room_data WHERE room=? AND count_id=?;"
+    # Delete all headcount room data for a given count ID (NOT room id!)
+    DELETE_HC_ROOMS_Q = \
+        "DELETE FROM room_data WHERE count_id=?"
     # Add a user
     ADD_USER_Q = "INSERT INTO users (username, is_admin) VALUES (?,?);"
     # Get all of a user's data
@@ -58,12 +57,13 @@ class HCDB:
     ROOMDATA_Q = "SELECT id, room, people_count FROM room_data WHERE " \
                  "count_id=? ORDER BY room;"
     NUMADMINS_Q = "SELECT COUNT(username) FROM users WHERE is_admin=1;"
+    USERNAME_FOR_COUNT_Q = "SELECT u.username FROM headcounts AS h, users AS " \
+                           "u WHERE u.id = h.user_id AND h.id = ?;"
 
     def __init__(self, filename):
         """Create a new instance of the HCDB connector"""
         self.db = sqlite3.connect(filename)
         self.db.row_factory = sqlite3.Row
-        self.cursor = self.db.cursor()
         self.filename = filename
         # Why is this turned off on every launch by default? Who knows!
         self._execute("PRAGMA foreign_keys=ON;")
@@ -74,19 +74,19 @@ class HCDB:
 
     def _executeone(self, query: str, *args) -> tuple:
         """Private method to execute a query and return one row of results"""
-        r = self.cursor.execute(query, *args)
+        r = self.db.execute(query, *args)
         return r.fetchone()
 
     def _executemany(self, query: str, arglist: Iterable) -> tuple:
         """Private method to execute a query with many inputs, and return one
         row of results"""
-        r = self.cursor.executemany(query, arglist)
+        r = self.db.executemany(query, arglist)
         return r.fetchone()
 
     def _execute(self, query: str, *args) -> sqlite3.Cursor:
         """Private method to execute a query
         :param query A SQL query to execute on the database"""
-        return self.cursor.execute(query, *args)
+        return self.db.execute(query, *args)
 
     def initialize(self, schema_file):
         """Use the given schema file object to initialize the database.
@@ -135,20 +135,14 @@ class HCDB:
             }
         :param newdata: The new data for the headcount
         :param id: The ID of the headcount to modify"""
-        self.db.row_factory = lambda cursor, row: tuple(row)
-        self.cursor = self.db.cursor()
-        r = self.cursor.execute(HCDB.EDIT_HEADCOUNT_TEST_Q, (id,))
-        print(r.fetchall())
         self._execute(HCDB.EDIT_HC_ROOM_Q, (newdata['submit_time'], newdata[
             'entered_time'], id))
         for room, people in newdata['rooms'].items():
-            r = self.cursor.execute(HCDB.EDIT_HC_ROOM_TEST_Q, (room, id))
-            print(r.fetchall())
             self._execute(HCDB.EDIT_HC_ROOM_Q, (people, room, id))
-        self.db.row_factory = sqlite3.Row
-        self.cursor = self.db.cursor()
+        self.db.commit()
 
     def del_headcount(self, count_id: int):
+        self._execute(HCDB.DELETE_HC_ROOMS_Q, (count_id,))
         self._execute(HCDB.DELETE_HEADCOUNT_Q, (count_id,))
         self.db.commit()
 
@@ -214,6 +208,19 @@ class HCDB:
     def count_admins(self):
         """Return the current number of administrators."""
         return self._execute(HCDB.NUMADMINS_Q).fetchall()
+
+    def can_modify(self, username: str, count_id: int) -> bool:
+        """Check to see if the given username is allowed to modify the given
+        count ID.  Returns True when the user ID corresponding to the
+        username is also the user ID that created the headcount.
+        :param username: The username of the person trying to modify a
+        headcount
+        :param count_id: The ID of the headcount being modified
+        :pre: username already exists in the database"""
+        r = self._executeone(HCDB.USERNAME_FOR_COUNT_Q, (count_id,))
+        if len(r) != 1:
+            return False
+        return r[0] == username
 
     def close(self):
         """Closes the database connection"""
