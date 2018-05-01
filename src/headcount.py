@@ -45,6 +45,7 @@ app.secret_key = os.environ["HEADCOUNT_SECRET_KEY"]
 #   I think it's obvious why.   #
 #################################
 app.config['DISABLE_AUTH'] = False
+app.config['AUTH_NAME_TOGGLE'] = False
 
 NavButton = namedtuple("NavButton", "location name")
 
@@ -253,7 +254,9 @@ def login():
     else:
         print("WARNING: AUTHENTICATION IS DISABLED. IF THIS MESSAGE APPEARS "
               "IN YOUR PRODUCTION LOGS, SOMETHING IS WRONG.")
-        session['username'] = "tstusr"
+        session['username'] = "tstusr" if not app.config['AUTH_NAME_TOGGLE'] \
+            else "wel2138"
+        app.config['AUTH_NAME_TOGGLE'] = not app.config['AUTH_NAME_TOGGLE']
         session['log_rows'] = 3
         return redirect(url_for('show_main'))
 
