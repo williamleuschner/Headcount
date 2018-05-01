@@ -516,6 +516,12 @@ def submit_main_edit():
                 elif key_split[0] == "time":
                     updates[count_id]["entered_time"] = val
                 else:
+                    rm_max = app.config['HC_CONFIG'][key_split[0]].max_occupancy
+                    if int(val) > rm_max:
+                        session['last_error'] = "Room %s can't have more " \
+                                                "than %d people in it." % \
+                                                (key_split[0], rm_max)
+                        return redirect(url_for("error"))
                     updates[count_id]["rooms"][key_split[0]] = int(val)
             except ValueError:
                 continue
