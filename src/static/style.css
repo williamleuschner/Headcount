@@ -265,6 +265,11 @@ td:not(:last-child) {
     border-right: 1px solid #95989A;
 }
 
+td.checkbox-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
 th:not(:last-child) {
     border-right: 1px solid #95989A;
 }
@@ -513,6 +518,10 @@ input[type="checkbox"] {
     margin: 0 2rem 1rem 2rem;
 }
 
+.button-space {
+    width: 0.25rem;
+}
+
 button {
     display: inline-block;
     padding: 0;
@@ -538,6 +547,7 @@ button.green {
     background-color: #00B950;
     color: #FFF;
     border: 1px solid #008439;
+    border-radius: 4px;
     font-weight: bold;
 }
 
@@ -586,6 +596,10 @@ input[type="text"].lozenge {
     background-image: url(/static/plus.svg);
 }
 
+.icon.save {
+    background-image: url(/static/save.svg);
+}
+
 @media all and (max-width: 850px) {
     .new-count-container {
         -webkit-flex-direction: column;
@@ -600,6 +614,10 @@ input[type="text"].lozenge {
     .new-count input[type="submit"] {
         display: block;
     }
+}
+
+td input[type="tel"] {
+    width: 20px;
 }
 /*
 * {

@@ -2,26 +2,50 @@
 {% block content %}
     <div class="header-group">
         <h2>Recent Headcounts</h2>
-        <a href="{{ url_for('show_main_edit') }}">Edit</a>
+        <a href="{{ url_for('show_main') }}">Done</a>
     </div>
-    <table class="recent-table">
-        <tbody>
-        <tr>
-            <th>Date</th>
-            {% for room in rooms %}
-                <th>{{ room.display_name() }}</th>
-            {% endfor %}
-        </tr>
-        {% for count in recent_counts %}
+    <form method="POST">
+        <div class="button-group">
+            <button class="red" name="delete">
+                <span class="icon trash"></span>
+            </button>
+            <span class="button-space"></span>
+            <button class="green" name="save">
+                <span class="icon save"></span>
+            </button>
+        </div>
+        <table class="recent-table">
+            <tbody>
             <tr>
-                <td>{{ count["date"] }}</td>
-                {% for data in count["counts"].values() %}
-                    <td class="numeric-data">{{ data }}</td>
+                <th>Delete</th>
+                <th>Date</th>
+                {% for room in rooms %}
+                    <th>{{ room.display_name() }}</th>
                 {% endfor %}
             </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            {% for count in recent_counts %}
+                <tr>
+                    <td class="checkbox-cell">
+                        <input type="checkbox" name="delete-{{ count['id'] }}">
+                    </td>
+                    <td>
+                        {% set date, time = count["date"].split(" ") %}
+                        <input type="date" value="{{ date }}"
+                               name="date-{{ count['id'] }}"><!-- this comment eats a space
+                        --><input type="time" value="{{ time }}"
+                                  name="time-{{ count['id'] }}">
+                    </td>
+                    {% for room, data in count["counts"].items() %}
+                        <td class="numeric-data">
+                            <input type="tel" value="{{ data }}"
+                                   name="{{ room }}-{{ count['id'] }}">
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </form>
 
     <h2>New Headcount</h2>
     <div class="new-count-container">

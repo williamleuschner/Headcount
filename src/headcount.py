@@ -4,6 +4,11 @@
 # Author: William Leuschner
 # File Creation Date: 2017-02-01
 # Last Modified Date: 2018-03-05
+# To Whomever Needs To Maintain This In The Future: Sorry. I've learned a lot
+#  about how to design applications since I wrote this, and it should
+# probably be rewritten. For starters, it's mostly functional, instead of
+# object-oriented. Hopefully that helps you understand some of the,
+# in hindsight, rather braindead architectural decisions.
 
 import datetime
 import os
@@ -40,6 +45,7 @@ app.secret_key = os.environ["HEADCOUNT_SECRET_KEY"]
 #   I think it's obvious why.   #
 #################################
 app.config['DISABLE_AUTH'] = False
+app.config['AUTH_NAME_TOGGLE'] = False
 
 NavButton = namedtuple("NavButton", "location name")
 
@@ -82,7 +88,7 @@ def add_user(usernames: list, admin: bool):
 def initdb_command():
     """Initialize the database"""
     db = get_db()
-    with app.open_resource('../db/hc.schema', mode='r') as f:
+    with app.open_resource('../db/hc.sql', mode='r') as f:
         db.initialize(f)
 
 
@@ -248,7 +254,9 @@ def login():
     else:
         print("WARNING: AUTHENTICATION IS DISABLED. IF THIS MESSAGE APPEARS "
               "IN YOUR PRODUCTION LOGS, SOMETHING IS WRONG.")
-        session['username'] = "tstusr"
+        session['username'] = "tstusr" if not app.config['AUTH_NAME_TOGGLE'] \
+            else "wel2138"
+        app.config['AUTH_NAME_TOGGLE'] = not app.config['AUTH_NAME_TOGGLE']
         session['log_rows'] = 3
         return redirect(url_for('show_main'))
 
@@ -414,6 +422,125 @@ def submit_headcount():
     # Give those arguments to the database
     db.add_headcount(user['id'], current_time, provided_time, counts)
     return redirect(url_for('show_main'))
+
+
+@app.route("/main-edit", methods=['GET'])
+@authenticated
+def show_main_edit():
+    db = get_db()
+    now = datetime.datetime.now()
+    rooms = [room for room in app.config["HC_CONFIG"].values()]
+    rooms.sort(key=config_lexer.Room.sortkey)
+    # Get the three newest counts from the database, sorted by the
+    # user-provided time
+    newest_counts = db.get_newest_counts_for_user(
+        3,
+        session['username'],
+        hc_db.NewestSort.ENTERED_TIME
+    )
+    recent_counts = []
+    for count in newest_counts:
+        room_rows = db.get_roomdata_for_count_id(count['id'])
+        # I couldn't think of a short, descriptive name for this variable.
+        some_dict = {"id": count['id'], "date": count['entered_time'],
+                     "counts": {}}
+        for row in room_rows:
+            some_dict["counts"][row['room']] = row['people_count']
+        some_dict['counts'] = OrderedDict(
+            sorted(some_dict['counts'].items(), key=sort_count_data)
+        )
+        recent_counts.append(some_dict)
+    if is_admin(session['username']):
+        buttons = [
+            NavButton(url_for("show_admin"), "Administration"),
+            NavButton(url_for("show_help"), "Help"),
+            NavButton(url_for("logout"), "Log Out")
+        ]
+    else:
+        buttons = [
+            NavButton(url_for("show_help"), "Help"),
+            NavButton(url_for("logout"), "Log Out")
+        ]
+    return render_template(
+        "main-edit.html",
+        buttons=buttons,
+        rooms=rooms,
+        recent_counts=recent_counts,
+        datewhen=now.strftime("%Y-%m-%d"),
+        timewhen=now.strftime("%H:%M")
+    )
+
+
+@app.route("/main-edit", methods=['POST'])
+@authenticated
+def submit_main_edit():
+    db = get_db()
+
+    # are we updating the headcounts or deleting them?
+    if "delete" in request.form.keys():
+        for key in request.form.keys():
+            key_split = key.split("-")
+            if len(key_split) < 2:
+                continue
+            if key_split[0] != "delete":
+                continue
+            if request.form.get(key) != "on":
+                continue
+            count_id = key_split[1]
+            try:
+                count_id = int(count_id)
+                if not db.can_modify(session['username'], count_id):
+                    session['last_error'] = "You cannot delete that headcount."
+                    return redirect(url_for("error"))
+                db.del_headcount(count_id)
+            except ValueError:
+                continue
+    elif "save" in request.form.keys():
+        updates = {}
+        for key, val in request.form.items():
+            key_split = key.split("-")
+            if len(key_split) <= 1:
+                continue
+            count_id = key_split[1]
+            try:
+                count_id = int(count_id)
+                if count_id not in updates.keys():
+                    updates[count_id] = {
+                        "submit_time": datetime.datetime.now(),
+                        "entered_date": "",
+                        "entered_time": "",
+                        "rooms": {}
+                    }
+                if key_split[0] == "date":
+                    updates[count_id]["entered_date"] = val
+                elif key_split[0] == "time":
+                    updates[count_id]["entered_time"] = val
+                else:
+                    updates[count_id]["rooms"][key_split[0]] = int(val)
+            except ValueError:
+                continue
+        for key in updates.keys():
+            if not db.can_modify(session['username'], key):
+                session["last_error"] = "You cannot edit that headcount."
+                return redirect(url_for("error"))
+            t = try_strptime(
+                updates[key]["entered_date"] + "T" +
+                updates[key]["entered_time"],
+                "%Y-%m-%dT%H:%M:%S"
+            )
+            if t is None:
+                provided_time = try_strptime(
+                    updates[key]["entered_date"] + "T" +
+                    updates[key]["entered_time"],
+                    "%Y-%m-%dT%H:%M"
+                )
+            if t is None:
+                session['last_error'] = "The headcount time was formatted " \
+                                        "improperly."
+                return redirect(url_for('error'))
+            updates[key]["entered_time"] = t
+            db.edit_headcount(updates[key], key)
+    return redirect(url_for("show_main_edit"))
 
 
 def get_csv_logs(how_many_rows: int) -> str:

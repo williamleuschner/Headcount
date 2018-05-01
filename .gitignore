@@ -3,3 +3,5 @@
 db/hc.db
 *__pycache__*
 secret.env
+config/uwsgi-ubuntu.ini
+venv/*
