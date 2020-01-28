@@ -52,7 +52,7 @@ app.secret_key = os.environ["HEADCOUNT_SECRET_KEY"]
 #   SET TO FALSE IN PRODUCTION  #
 #   I think it's obvious why.   #
 #################################
-app.config["DISABLE_AUTH"] = True
+app.config["DISABLE_AUTH"] = False
 app.config["AUTH_NAME_TOGGLE"] = True
 
 NavButton = namedtuple("NavButton", "location name")
