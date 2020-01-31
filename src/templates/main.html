@@ -36,27 +36,29 @@
                    id="reverse-inputs">
             <div class="flex-inputs">
                 <div class="input-group">
-                    <span>Date:</span>
+                    <label for="date">Date:</label>
                     <input type="date" name="date" value="{{ datewhen }}"
                            id="date">
                 </div>
                 <div class="input-group">
-                    <span>Time:</span>
+                    <label for="time">Time:</label>
                     <input type="time" name="time" value="{{ timewhen }}"
                            id="time">
                 </div>
                 {% for room in rooms %}
                     <div class="input-group">
-                        <span>{{ room.display_name() }}:</span>
+                        <label for="{{ room.name }}">{{ room.display_name() }}:</label>
                         <input type="tel" pattern="[0-9]*" formnovalidate
-                               name="{{ room.name }}" class="room-input">
+                                          name="{{ room.name }}" id="{{ room.name }}"
+                                          class="room-input">
                     </div>
                 {% endfor %}
             </div>
             <input type="submit" name="submit" value="Submit">
         </form>
     </div>
-    <script src="{{ url_for('static', filename='rooms.js') }}"></script>
+    <script src="{{ url_for('static', filename='enhancements.js')}}"></script>
+    <!--<script src="{{ url_for('static', filename='rooms.js') }}"></script>
     <script src="{{ url_for('static', filename='taborderfixer.js') }}"></script>
-    <script src="{{ url_for('static', filename='autoadvance.js') }}"></script>
+    <script src="{{ url_for('static', filename='autoadvance.js') }}"></script>-->
 {% endblock %}

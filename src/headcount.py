@@ -1,14 +1,15 @@
-# Headcount.py
-# A Server-Side Python Application for Labbies Taking Headcounts in SE
-# Classrooms
-# Author: William Leuschner
-# File Creation Date: 2017-02-01
-# Last Modified Date: 2020-01-27
+# -*- coding: utf-8 -*-
+"""Headcount: A Server-Side Python App for Labbies Taking Headcounts for SE
+
+**Author:** William Leuschner
+**File Creation Date:** 2017-02-01
+**Last Modified Date:** 2020-01-31
+"""
 # To Whomever Needs To Maintain This In The Future: Sorry. I've learned a lot
-#  about how to design applications since I wrote this, and it should
-# probably be rewritten. For starters, it's mostly functional, instead of
-# object-oriented. Hopefully that helps you understand some of the,
-# in hindsight, rather braindead architectural decisions.
+# about how to design applications since I wrote this, and it should probably be
+# rewritten. For starters, it's mostly functional, instead of object-oriented.
+# Hopefully that helps you understand some of the, in hindsight, rather
+# braindead architectural decisions.
 
 import datetime
 import os
@@ -52,7 +53,7 @@ app.secret_key = os.environ["HEADCOUNT_SECRET_KEY"]
 #   SET TO FALSE IN PRODUCTION  #
 #   I think it's obvious why.   #
 #################################
-app.config["DISABLE_AUTH"] = False
+app.config["DISABLE_AUTH"] = True
 app.config["AUTH_NAME_TOGGLE"] = True
 
 NavButton = namedtuple("NavButton", "location name")
@@ -91,7 +92,7 @@ def add_user(usernames: list, admin: bool):
             continue
         user_id, username, is_admin, is_enabled = db.get_user_by_name(name)
         if is_enabled == 0:
-            db.enable_user(name);
+            db.enable_user(name)
             if is_admin != admin:
                 if is_admin:
                     db.revoke_admin_from_user(name)
@@ -141,15 +142,13 @@ def validate_username(test_string: str) -> bool:
     :return True if the username is OK, False if it isn't"""
     if USERNAME_REGEX.match(test_string) is not None:
         return True
-    else:
-        session["last_error"] = "That's not a valid username."
-        return False
+    session["last_error"] = "That's not a valid username."
+    return False
 
 
 def is_admin(username: str) -> bool:
     """Returns True if the user is an administrator, False if they are not (
-    or if they don't exist, since non-existent users cannot be 
-    administrators."""
+    or if they don't exist, since non-existent users cannot be administrators."""
     db = get_db()
     return int(db.get_user_by_name(username)["is_admin"]) == 1
 
@@ -202,11 +201,13 @@ def admin_authenticated(decoratee):
 
 
 def init_saml_auth(req):
+    """Initialize the SAML authentication library."""
     auth = OneLogin_Saml2_Auth(req, custom_base_path=app.config["SAML_PATH"])
     return auth
 
 
 def prepare_flask_request(req):
+    """Create a settings array for Flask."""
     url_data = urlparse(req.url)
     return {
         "https": "on" if req.scheme == "https" else "off",
@@ -220,11 +221,13 @@ def prepare_flask_request(req):
 
 @app.route("/index")
 def index():
+    """Respond to requests for the /index page."""
     return render_template("index.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """Respond to requests for the /login page."""
     if not app.config["DISABLE_AUTH"]:
         req = prepare_flask_request(request)
         auth = init_saml_auth(req)
@@ -284,8 +287,7 @@ def login():
             if len(errors) == 0:
                 if url is not None:
                     return redirect(url)
-                else:
-                    success_slo = True
+                success_slo = True
 
         return redirect(url_for("index"))
     else:
@@ -303,14 +305,15 @@ def login():
 
 @app.route("/metadata/")
 def metadata():
+    """Respond to requests for the application's SAML metadata."""
     req = prepare_flask_request(request)
     auth = init_saml_auth(req)
     settings = auth.get_settings()
-    metadata = settings.get_sp_metadata()
-    errors = settings.validate_metadata(metadata)
+    sp_metadata = settings.get_sp_metadata()
+    errors = settings.validate_metadata(sp_metadata)
 
     if len(errors) == 0:
-        resp = make_response(metadata, 200)
+        resp = make_response(sp_metadata, 200)
         resp.headers["Content-Type"] = "text/xml"
     else:
         resp = make_response(", ".join(errors), 500)
@@ -339,9 +342,10 @@ def sort_count_data(item):
 @app.route("/main", methods=["GET"])
 @authenticated
 def show_main():
+    """Respond to requests for the /main page."""
     db = get_db()
     now = datetime.datetime.now()
-    rooms = [room for room in app.config["HC_CONFIG"].values()]
+    rooms = app.config["HC_CONFIG"].values()
     rooms.sort(key=config_lexer.Room.sortkey)
     # Get the three newest counts from the database, sorted by the
     # user-provided time
@@ -381,6 +385,7 @@ def show_main():
 @app.route("/submit", methods=["POST"])
 @authenticated
 def submit_headcount():
+    """Respond to requests to submit a new headcount."""
     db = get_db()
     if request.form.get("date") is None or request.form.get("time") is None:
         session["last_error"] = (
@@ -414,7 +419,7 @@ def submit_headcount():
     if "reverse-inputs" in counts.keys():
         del counts["reverse-inputs"]
     provided_rooms = set(counts.keys())
-    configured_rooms = set([room.name for room in app.config["HC_CONFIG"].values()])
+    configured_rooms = {room.name for room in app.config["HC_CONFIG"].values()}
     if provided_rooms != configured_rooms:
         extraneous = provided_rooms - configured_rooms
         missing = configured_rooms - provided_rooms
@@ -469,9 +474,10 @@ def submit_headcount():
 @app.route("/main-edit", methods=["GET"])
 @authenticated
 def show_main_edit():
+    """Respond to requests for main page headcount edits."""
     db = get_db()
     now = datetime.datetime.now()
-    rooms = [room for room in app.config["HC_CONFIG"].values()]
+    rooms = app.config["HC_CONFIG"].values()
     rooms.sort(key=config_lexer.Room.sortkey)
     # Get the three newest counts from the database, sorted by the
     # user-provided time
@@ -513,6 +519,7 @@ def show_main_edit():
 @app.route("/main-edit", methods=["POST"])
 @authenticated
 def submit_main_edit():
+    """Respond to POST requests for main page headcount edits."""
     db = get_db()
 
     # are we updating the headcounts or deleting them?
@@ -632,16 +639,19 @@ def render_admin_page(template_name: str):
 @app.route("/admin", methods=["GET"])
 @admin_authenticated
 def show_admin():
+    """Respond to requests for the administration page."""
     return render_admin_page("admin.html")
 
 
 @app.route("/admin", methods=["POST"])
 @admin_authenticated
 def admin_update_preview():
+    """Respond to updates on the administration page."""
     return user_management_handler("show_admin", "", False)
 
 
 def avoid_lockouts():
+    """Check to make sure you can't lock everyone out of the application."""
     db = get_db()
     if db.count_admins()[0][0] <= 2:
         session["last_error"] = "There must always be at least two administrators."
@@ -693,7 +703,8 @@ def user_management_handler(redir_page: str, new_users_field_name: str, admins: 
                         db.disable_user(user)
                     else:
                         session["last_error"] = (
-                            "%s is not an administrator, so you cannot delete them in administrator editing mode."
+                            "%s is not an administrator, so you cannot delete them in"
+                            " administrator editing mode."
                             % (user,)
                         )
             else:
@@ -710,29 +721,38 @@ def user_management_handler(redir_page: str, new_users_field_name: str, admins: 
 @app.route("/admin/edit-admins", methods=["GET"])
 @admin_authenticated
 def show_admin_edit_admins():
+    """Display the version of the admininstration page that allows you to edit
+    administrators.
+    """
     return render_admin_page("admin-ea.html")
 
 
 @app.route("/admin/edit-admins", methods=["POST"])
 @admin_authenticated
 def admin_edit_admins():
+    """Respond to requests to update administrators."""
     return user_management_handler("show_admin_edit_admins", "new_admins", True)
 
 
 @app.route("/admin/edit-users", methods=["GET"])
 @admin_authenticated
 def show_admin_edit_users():
+    """Display the version of the admininstration page that allows you to edit
+    users.
+    """
     return render_admin_page("admin-eu.html")
 
 
 @app.route("/admin/edit-users", methods=["POST"])
 @admin_authenticated
 def admin_edit_users():
+    """Respond to requests to update users."""
     return user_management_handler("show_admin_edit_users", "new_users", False)
 
 
 @app.route("/logout")
 def logout():
+    """Log out the user."""
     if "username" in session.keys():
         del session["username"]
     if not app.config["DISABLE_AUTH"]:
@@ -743,6 +763,7 @@ def logout():
 
 @app.route("/help")
 def show_help():
+    """Display the help page."""
     if "username" in session.keys() and is_admin(session["username"]):
         buttons = [
             NavButton(url_for("logout"), "Log Out"),
@@ -761,6 +782,7 @@ def show_help():
 
 @app.route("/error")
 def error():
+    """Display the error page."""
     if "last_error" in session.keys():
         error_msg = session["last_error"]
         del session["last_error"]
@@ -782,10 +804,12 @@ def error():
 
 
 def main():
+    """Run the application."""
     app.config["HC_CONFIG"] = config_lexer.read_configuration()
 
 
 def main_dbg():
+    """Run the application in debug mode."""
     app.config["HC_CONFIG"] = config_lexer.read_configuration()
     app.run(debug=True)
 

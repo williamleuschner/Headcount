@@ -1,3 +1,52 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+/* end of reset.css */
 
 html, body {
     font-family: "San Francisco Display", "SF UI Display", Helvetica Neue, Arial, sans-serif;
@@ -12,8 +61,8 @@ p, a {
 }
 
 .hero-bg {
-    background: #24C6DC; /* fallback for old browsers */ /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to top left, #24C6DC , #514A9D); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: #1B54AC; /* fallback for old browsers */ /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to top left, #1B54AC , #514A9D); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     color: white;
 }
 
@@ -57,7 +106,7 @@ nav .buttons li {
 
 nav .buttons a {
     font-weight: 600;
-    color: #24C6DC;
+    color: #1B54AC;
 }
 
 @media (max-width: 550px) {
@@ -221,18 +270,18 @@ textarea {
 
 .login:hover {
     background: white;
-    color: #24C6DC;
+    color: #1B54AC;
     transition: background .2s, color .2s;
 }
 
 nav .login {
-    background-color: #24C6DC;
-    border: 2px #24C6DC solid;
+    background-color: #1B54AC;
+    border: 2px #1B54AC solid;
 }
 
 nav .login:hover {
     background-color: rgba(69, 127, 202, 0);
-    color: #24C6DC;
+    color: #1B54AC;
 }
 
 /* 660px happens to be the width of the table */
@@ -275,7 +324,7 @@ th:not(:last-child) {
 }
 
 form input[type="submit"] {
-    background-color: #24C6DC;
+    background-color: #1B54AC;
     padding: .7rem 1.5rem;
     color: white;
     font-weight: bold;
@@ -455,7 +504,7 @@ input[type="checkbox"].steven:checked ~ .flex-inputs {
 }
 
 .header-group a {
-    color: #24C6DC;
+    color: #1B54AC;
     font-weight: bold;
 }
 
@@ -554,7 +603,7 @@ button.green {
 button.update {
     border: none !important;
     background: none;
-    color: #24C6DC;
+    color: #1B54AC;
     font-weight: bold;
     font-size: 16px;
     width: auto;
